@@ -1,0 +1,24 @@
+# ignore
+*.log
+*.rdb
+*.DS_Store
+/certs
+/EXTRAS
+/_internal_tests
+/logs
+/files
+/documentation
+/views/wikitemplates
+/views/emailtemplates
+/node_modules
+/.env_windows
+/.env_linux
+/libs
+/bin
+/routes
+/tasks
+/config.js
+*.env
+
+# /public
+# index.html

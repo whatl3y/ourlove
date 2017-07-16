@@ -1,0 +1,52 @@
+{
+  "name": "ourlove",
+  "version": "0.0.1",
+  "description": "Statistics and memories for relationships.",
+  "main": "forever.js",
+  "engines": {
+    "node": "8.1.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/useriq-app/useriq-bigdata-stream.git"
+  },
+  "scripts": {
+    "dev": "nodemon forever",
+    "start": "node forever",
+    "postinstall": "gulp prep-prod",
+    "test": "mocha --compilers js:babel-core/register --recursive './src/**/*.spec.js'"
+  },
+  "devDependencies": {
+    "concurrently": "^3.5.0",
+    "mocha": "^3.1.1"
+  },
+  "dependencies": {
+    "async": "^2.5.0",
+    "aws-sdk": "^2.38.0",
+    "babel-core": "^6.24.1",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
+    "babel-preset-es2016": "^6.24.1",
+    "body-parser": "^1.12.0",
+    "bunyan": "^1.8.10",
+    "express": "^4.8.0",
+    "express-useragent": "^1.0.7",
+    "forever-monitor": "^1.7.1",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-plumber": "^1.1.0",
+    "gulp-replace": "^0.5.4",
+    "gulp-uglify": "^1.5.4",
+    "heroku-client": "^3.0.2",
+    "minimist": "^1.2.0",
+    "moment": "^2.17.1",
+    "newrelic": "^1.40.0",
+    "pg": "^6.1.5",
+    "redis": "^2.6.3",
+    "socket.io-client": "^1.7.2",
+    "sticky-session": "^1.0.2",
+    "throng": "^4.0.0"
+  },
+  "author": "Lance Whatley",
+  "license": "ISC"
+}
