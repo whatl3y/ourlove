@@ -14,7 +14,7 @@ var self = module.exports = {
   socketio: {},
 
   newrelic: {
-    key:    process.env.NEWRELIC_KEY,
+    key:    process.env.NEWRELIC_KEY || process.env.NEW_RELIC_LICENSE_KEY,
     level:  process.env.NEWRELIC_LEVEL || 'info'
   },
 
