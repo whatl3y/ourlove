@@ -14,7 +14,7 @@ export default new VueRouter({
       component: Home
     },
     {
-      path: '/:relationship_id',
+      path: '/:relationship_id*',
       name: 'Relationship',
       component: Relationship,
       props: true

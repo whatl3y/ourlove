@@ -8,6 +8,7 @@
 
 <script>
 import moment from 'moment'
+import Relationships from '../factories/Relationships'
 
 export { Relationship as default }
 
@@ -19,12 +20,16 @@ const Relationship = {
       time: moment.utc().format()
     }
   },
+
   methods: {
     updateTime() {
       return this.time = moment.utc().format()
     }
   },
-  created() {
+
+  async created() {
+    const data = await Relationships.get(this.relationship_id)
+    console.log('relationships', data)
     setInterval(() => this.updateTime(), 500)
   }
 }
