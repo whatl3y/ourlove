@@ -1,8 +1,7 @@
 <template>
-  <div id="app">
-    <h1>This is our.love!</h1>
+  <md-layout md-align="center" id="app">
     <router-view></router-view>
-  </div>
+  </md-layout>
 </template>
 
 <script>
@@ -10,14 +9,3 @@ export default {
   name: 'app'
 }
 </script>
-
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>

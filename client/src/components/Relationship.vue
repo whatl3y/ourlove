@@ -1,37 +1,31 @@
 <template>
-  <div class="relationship-container">
-    <h3>This is a relationship</h3>
-    <h5>{{ relationship_id }}</h5>
-  </div>
+  <md-layout md-column md-vertical-align="center" class="relationship-container">
+    <h3 class="md-display-3">This is a relationship</h3>
+    <div class="md-display-1">{{ relationship_id }}</div>
+    <div>{{ time }}</div>
+  </md-layout>
 </template>
 
 <script>
-export default {
+import moment from 'moment'
+
+export { Relationship as default }
+
+const Relationship = {
   name: 'relationship',
   props: ['relationship_id'],
-  data () {
-    return {}
+  data() {
+    return {
+      time: moment.utc().format()
+    }
+  },
+  methods: {
+    updateTime() {
+      return this.time = moment.utc().format()
+    }
+  },
+  created() {
+    setInterval(() => this.updateTime(), 500)
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
-}
-</style>

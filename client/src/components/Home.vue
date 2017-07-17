@@ -1,7 +1,8 @@
 <template>
-  <div class="main">
-    <h3>{{ msg }}</h3>
-  </div>
+  <md-layout md-column md-vertical-align="center" md-align="center" class="main">
+    <h1 class="md-display-4">This is our.love!</h1>
+    <div>{{ msg }}</div>
+  </md-layout>
 </template>
 
 <script>
@@ -21,24 +22,3 @@ export default {
 //     console.log('parsing failed', ex)
 //   })
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h1, h2 {
-  font-weight: normal;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
-}
-</style>
