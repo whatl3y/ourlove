@@ -14,7 +14,6 @@ import cluster from 'cluster'
 import sticky from 'sticky-session'
 import bodyParser from 'body-parser'
 import useragent from 'express-useragent'
-import history from 'connect-history-api-fallback'
 import redis from 'redis'
 import path from 'path'
 import bunyan from 'bunyan'
@@ -62,10 +61,6 @@ async function startApp() {
   app.use(useragent.express())
   app.use(bodyParser.urlencoded({extended: true, limit: '1mb'}))
   app.use(bodyParser.json({limit: '1mb'}))
-
-  // support history API by changing the requested
-  // location to point to index.html
-  app.use(history())
 
   // Enable CORS for all routes
   // app.use(function(req, res, next) {
