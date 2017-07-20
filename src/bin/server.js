@@ -58,6 +58,10 @@ async function startApp() {
     if (redisUrl.auth) config.redis.client.auth(redisUrl.auth.split(":")[1])
   }
 
+  //view engine setup
+  app.set('views', path.join(__dirname, '..'))
+  app.set('view engine', 'pug')
+
   app.use(useragent.express())
   app.use(bodyParser.urlencoded({extended: true, limit: '1mb'}))
   app.use(bodyParser.json({limit: '1mb'}))

@@ -38,6 +38,8 @@ async function createRelationships(postgres) {
       id serial,
       username varchar(255),
       path varchar(255),
+      person1_name varchar(255),
+      person2_name varchar(255),
       relationship_image varchar(255),
       relationship_started timestamp(6) without time zone,
       relationship_married timestamp(6) without time zone,

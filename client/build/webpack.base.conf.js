@@ -26,6 +26,13 @@ module.exports = {
     }
   },
   module: {
+    loaders: [
+      {
+        test: /\.pug$/,
+        loader: 'pug-loader'
+      }
+    ],
+
     rules: [
       {
         test: /\.vue$/,

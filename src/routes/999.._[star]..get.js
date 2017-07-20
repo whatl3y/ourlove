@@ -6,5 +6,5 @@ import config from '../config'
 const log = bunyan.createLogger(config.logger.options)
 
 export default function Index(req, res) {
-  res.sendFile(path.resolve(`index.html`))
+  res.render('index', {})
 }

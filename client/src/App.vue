@@ -1,5 +1,5 @@
 <template>
-  <md-layout md-align="center" id="app">
+  <md-layout id="app">
     <router-view></router-view>
   </md-layout>
 </template>
