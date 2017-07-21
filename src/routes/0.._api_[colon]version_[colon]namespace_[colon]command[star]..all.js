@@ -1,8 +1,10 @@
 import moment from 'moment'
 import bunyan from 'bunyan'
+import PostgresClient from '../libs/PostgresClient'
 import Relationships from '../libs/Relationships'
 import config from '../config'
 
+const postgres = new PostgresClient()
 const log = bunyan.createLogger(config.logger.options)
 
 export default async function Api(req, res) {
@@ -15,7 +17,7 @@ export default async function Api(req, res) {
 
     switch(namespace) {
       case 'relationships':
-        const relationship  = new Relationships({path: info})
+        const relationship  = new Relationships({postgres: postgres, path: info})
         const record        = await relationship.getByPath()
 
         switch(command) {

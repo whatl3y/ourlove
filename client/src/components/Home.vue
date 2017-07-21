@@ -14,11 +14,4 @@ export default {
     }
   }
 }
-
-// fetch('/api/test')
-//   .then(function(response) {
-//     response.text().then(console.log)
-//   }).catch(function(ex) {
-//     console.log('parsing failed', ex)
-//   })
 </script>

@@ -105,19 +105,19 @@ const Relationship = {
       if (this.relationship.relationship_started) {
         this.dynamicTimes.secondsSinceStartDate = moment.utc().diff(moment.utc(this.relationship.relationship_started), 'seconds')
         this.dynamicTimes.minutesSinceStartDate = moment.utc().diff(moment.utc(this.relationship.relationship_started), 'minutes')
-        this.dynamicTimes.daysSinceStartDate = moment.utc().diff(moment.utc(this.relationship.relationship_started), 'days')
-        this.dynamicTimes.weeksSinceStartDate = moment.utc().diff(moment.utc(this.relationship.relationship_started), 'weeks')
-        this.dynamicTimes.monthsSinceStartDate = moment.utc().diff(moment.utc(this.relationship.relationship_started), 'months')
-        this.dynamicTimes.yearsSinceStartDate = moment.utc().diff(moment.utc(this.relationship.relationship_started), 'years')
+        this.dynamicTimes.daysSinceStartDate    = moment.utc().diff(moment.utc(this.relationship.relationship_started), 'days')
+        this.dynamicTimes.weeksSinceStartDate   = moment.utc().diff(moment.utc(this.relationship.relationship_started), 'weeks')
+        this.dynamicTimes.monthsSinceStartDate  = moment.utc().diff(moment.utc(this.relationship.relationship_started), 'months')
+        this.dynamicTimes.yearsSinceStartDate   = moment.utc().diff(moment.utc(this.relationship.relationship_started), 'years')
       }
 
       if (this.relationship.relationship_married)
         this.dynamicTimes.secondsSinceMarriedDate = moment.utc().diff(moment.utc(this.relationship.relationship_married), 'seconds')
         this.dynamicTimes.minutesSinceMarriedDate = moment.utc().diff(moment.utc(this.relationship.relationship_married), 'minutes')
-        this.dynamicTimes.daysSinceMarriedDate = moment.utc().diff(moment.utc(this.relationship.relationship_married), 'days')
-        this.dynamicTimes.weeksSinceMarriedDate = moment.utc().diff(moment.utc(this.relationship.relationship_married), 'weeks')
-        this.dynamicTimes.monthsSinceMarriedDate = moment.utc().diff(moment.utc(this.relationship.relationship_married), 'months')
-        this.dynamicTimes.yearsSinceMarriedDate = moment.utc().diff(moment.utc(this.relationship.relationship_married), 'years')
+        this.dynamicTimes.daysSinceMarriedDate    = moment.utc().diff(moment.utc(this.relationship.relationship_married), 'days')
+        this.dynamicTimes.weeksSinceMarriedDate   = moment.utc().diff(moment.utc(this.relationship.relationship_married), 'weeks')
+        this.dynamicTimes.monthsSinceMarriedDate  = moment.utc().diff(moment.utc(this.relationship.relationship_married), 'months')
+        this.dynamicTimes.yearsSinceMarriedDate   = moment.utc().diff(moment.utc(this.relationship.relationship_married), 'years')
     }
   },
 

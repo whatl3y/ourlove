@@ -10,7 +10,8 @@ import url from 'url'
 import fs from 'fs'
 import express from 'express'
 import throng from 'throng'
-import cluster from 'cluster'
+import session from 'express-session'
+import ConnectRedis from 'connect-redis'
 import sticky from 'sticky-session'
 import bodyParser from 'body-parser'
 import useragent from 'express-useragent'
@@ -65,6 +66,18 @@ async function startApp() {
   app.use(useragent.express())
   app.use(bodyParser.urlencoded({extended: true, limit: '1mb'}))
   app.use(bodyParser.json({limit: '1mb'}))
+
+  const RedisStore = ConnectRedis(session)
+  app.use(
+    session({
+      store:              new RedisStore({client: config.redis.client, disableTTL: true}),
+      secret:             config.session.sessionSecret,
+      key:                config.session.sessionCookieKey,
+      resave:             true,
+      saveUninitialized:  true
+      //cookie: { secure: true }
+    })
+  )
 
   // Enable CORS for all routes
   // app.use(function(req, res, next) {

@@ -11,6 +11,11 @@ var self = module.exports = {
     HOST:             process.env.HOSTNAME || "http://localhost:8080"
   },
 
+  session: {
+    sessionSecret: process.env.SESSION_SECRET,
+    sessionCookieKey: process.env.SESSION_COOKIE_KEY
+  },
+
   socketio: {},
 
   newrelic: {
