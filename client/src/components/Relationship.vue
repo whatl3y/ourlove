@@ -8,25 +8,25 @@
     <md-layout v-if="relationshipStatus('none')" md-row md-align="center" class="create-relationship-container">
       <md-layout md-column md-flex md-flex-medium="50" md-flex-large="40" md-flex-xlarge="20">
         <h1 class="md-display-2">Create Relationship!</h1>
-        <md-layout>
+        <md-layout md-column>
           <md-input-container>
             <label>First Person's Name</label>
             <md-input v-model="newRelationship.p1name"></md-input>
           </md-input-container>
         </md-layout>
-        <md-layout>
+        <md-layout md-column>
           <md-input-container>
             <label>Second Person's Name</label>
             <md-input v-model="newRelationship.p2name"></md-input>
           </md-input-container>
         </md-layout>
-        <md-layout>
+        <md-layout md-column>
           <md-input-container>
             <label>Relationship Start Date</label>
             <md-input v-model="newRelationship.startDate"></md-input>
           </md-input-container>
         </md-layout>
-        <md-layout>
+        <md-layout md-column>
           <md-input-container>
             <label>Optional: Married Date</label>
             <md-input v-model="newRelationship.marriedDate"></md-input>
