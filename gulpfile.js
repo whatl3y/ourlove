@@ -51,7 +51,7 @@ gulp.task('passport-dev', function () {
 
 gulp.task('passport-prod', function () {
   return gulp.src("./src/passport_strategies/*.js")
-    .pipe(sourcemaps.init())
+    // .pipe(sourcemaps.init())
     .pipe(plumber())
     .pipe(babel())
     // .pipe(uglify().on('error', console.log))
