@@ -16,6 +16,7 @@ import sticky from 'sticky-session'
 import bodyParser from 'body-parser'
 import useragent from 'express-useragent'
 import redis from 'redis'
+import passport from 'passport'
 import path from 'path'
 import bunyan from 'bunyan'
 import Routes from '../libs/Routes'
@@ -78,6 +79,8 @@ async function startApp() {
       //cookie: { secure: true }
     })
   )
+  app.use(passport.initialize())
+  app.use(passport.session())
 
   // Enable CORS for all routes
   // app.use(function(req, res, next) {
@@ -103,6 +106,26 @@ async function startApp() {
       log.error(err, `Error binding route to express; method: ${route.verb}; path: ${route.path}`)
     }
   })
+
+  //passport setup
+  const strategies = fs.readdirSync("passport_strategies") || []
+  strategies.forEach(stratFile => {
+    try {
+      const oStrat = require(`../passport_strategies/${stratFile}`).default
+      if ((typeof oStrat.condition === 'undefined') || oStrat.condition) {
+        const stratName = path.basename(stratFile,".js")
+
+        if (oStrat.options) return passport.use(stratName,new oStrat.strategy(oStrat.options,oStrat.handler))
+        return passport.use(stratName,new oStrat.strategy(oStrat.handler))
+      }
+
+    } catch(err) {
+      log.error(err)
+    }
+  })
+
+  passport.serializeUser((user, done) => done(null, user))
+  passport.deserializeUser((user, done) => done(null, user))
 
   serverTypeMap['server'].listen(config.server.PORT, () => log.info(`listening on *: ${config.server.PORT}`))
 

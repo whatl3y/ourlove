@@ -6,17 +6,17 @@ import config from '../config'
 
 const FacebookStrategy = passport_facebook.Strategy
 
-module.exports = {
-  BUILTIN: true,
-  strategy: FacebookStrategy,
-  condition: config.facebook.appId,
+export default {
+  BUILTIN:    true,
+  strategy:   FacebookStrategy,
+  condition:  config.facebook.appId,
   options: {
-    clientID: config.facebook.appId,
-    clientSecret: config.facebook.appSecret,
-    callbackURL: config.facebook.loginCallbackUrl(),
-    enableProof: true,
-    passReqToCallback: true,
-    profileFields: ["id", "emails", "name"]
+    clientID:           config.facebook.appId,
+    clientSecret:       config.facebook.appSecret,
+    callbackURL:        config.facebook.loginCallbackUrl(),
+    enableProof:        true,
+    passReqToCallback:  true,
+    profileFields:      ["id", "emails", "name"]
   },
   handler: function(req, accessToken, refreshToken, profile, done) {
     var auth = new Auth({db:config.mongodb.db, session:req.session})

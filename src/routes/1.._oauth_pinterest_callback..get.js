@@ -2,6 +2,6 @@ import passport from 'passport'
 
 export default passport.authenticate("pinterest", {
   // successRedirect:'/',
-  successReturnToOrRedirect: '/',
+  successReturnToOrRedirect: '/redirect',
   failureRedirect: '/oauth/pinterest'
 })

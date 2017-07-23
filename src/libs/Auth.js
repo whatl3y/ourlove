@@ -1,17 +1,13 @@
-import async_series from 'async/series'
-import config from '../config.js'
 import Encryption from './Encryption'
 
 const NOOP = function(){}
 
 export default class Auth {
-  constructor(options) {
-    // options = options || {}
-    //
-    // this.user = options.user
-    // this._session = options.session
-    // this._db = options.db || config.mongodb.db
-    // this._encryption = new Encryption()
+  constructor(options={}) {
+    this.user         = options.user
+    this.postgres     = options.postgres
+    this._session     = options.session
+    this._encryption  = new Encryption()
   }
 
   async findOrCreateUser(data, callback=NOOP) {
@@ -114,16 +110,14 @@ export default class Auth {
       this._session.destroy()
       return true
     }
-    return false
+    return null
   }
 
   getUsername() {
-    return (this._session && typeof this._session.user === "object") ? this._session.user.username : false
+    return (this._session && typeof this._session.user === "object") ? this._session.user.username : null
   }
 
   isLoggedIn() {
-    return (typeof this._session.user === "object") ? !!this._session.user.username : false
+    return !!this.getUsername()
   }
 }
-
-module.exports = Auth

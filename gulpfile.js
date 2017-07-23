@@ -42,6 +42,23 @@ gulp.task('bin-prod', function() {
     .pipe(gulp.dest("./bin"))
 })
 
+gulp.task('passport-dev', function () {
+  return gulp.src("./src/passport_strategies/*.js")
+    .pipe(babel())
+    // .pipe(uglify().on('error', console.log))
+    .pipe(gulp.dest("./passport_strategies"))
+})
+
+gulp.task('passport-prod', function () {
+  return gulp.src("./src/passport_strategies/*.js")
+    .pipe(sourcemaps.init())
+    .pipe(plumber())
+    .pipe(babel())
+    // .pipe(uglify().on('error', console.log))
+    // .pipe(sourcemaps.write('./maps'))
+    .pipe(gulp.dest("./passport_strategies"))
+})
+
 gulp.task('routes-dev', function() {
   return gulp.src("./src/routes/**/*.js")
     .pipe(babel())
@@ -58,5 +75,5 @@ gulp.task('routes-prod', function() {
     .pipe(gulp.dest("./routes"))
 })
 
-gulp.task('prep-dev', ['config', 'libs-dev', 'bin-dev', 'routes-dev'], function() {})
-gulp.task('prep-prod', ['config', 'libs-prod', 'bin-prod', 'routes-prod'], function() {})
+gulp.task('prep-dev', ['config', 'libs-dev', 'bin-dev', 'passport-dev', 'routes-dev'], function() {})
+gulp.task('prep-prod', ['config', 'libs-prod', 'bin-prod', 'passport-prod', 'routes-prod'], function() {})

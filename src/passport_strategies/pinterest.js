@@ -5,10 +5,10 @@ import config from '../config'
 
 const PinterestStrategy = passport_pinterest.OAuth2Strategy
 
-module.exports = {
-  BUILTIN: true,
-  strategy: PinterestStrategy,
-  condition: config.pinterest.appId,
+export default {
+  BUILTIN:  true,
+  strategy:   PinterestStrategy,
+  condition:  config.pinterest.appId,
   options: {
     clientID:           config.pinterest.appId,
     clientSecret:       config.pinterest.appSecret,

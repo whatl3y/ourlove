@@ -1,6 +1,6 @@
 var self = module.exports = {
   app: {
-    name: process.env.APP_NAME || "ourlove"
+    name: process.env.APP_NAME || "ourlove.io"
   },
 
   server: {
@@ -36,7 +36,7 @@ var self = module.exports = {
     uiq_access_secret:  process.env.UIQ_AWS_SECRET_ACCESS_KEY,
 
     s3: {
-      bucket: process.env.AWS_S3_BUCKET || 'our.love'
+      bucket: process.env.AWS_S3_BUCKET || 'ourlove.io'
     }
   },
 
@@ -58,7 +58,7 @@ var self = module.exports = {
 
   logger: {
     options: {
-      name: process.env.APP_NAME || "ourlove",
+      name: process.env.APP_NAME || "ourlove.io",
       level: process.env.LOGGING_LEVEL || "info",
       stream: process.stdout
       /*streams: [
@@ -67,6 +67,30 @@ var self = module.exports = {
           path: path.join(__dirname,"..","logs","wiki.log")
         }
       ]*/
+    }
+  },
+
+  facebook: {
+    appId: process.env.FACEBOOK_APP_ID,
+    appSecret: process.env.FACEBOOK_APP_SECRET,
+    loginCallbackUrl: function() {
+      return self.server.HOST + "/oauth/facebook/callback";
+    }
+  },
+
+  instagram: {
+    appId: process.env.INSTAGRAM_APP_ID,
+    appSecret: process.env.INSTAGRAM_APP_SECRET,
+    loginCallbackUrl: function() {
+      return self.server.HOST + "/oauth/instagram/callback";
+    }
+  },
+
+  pinterest: {
+    appId: process.env.PINTEREST_APP_ID,
+    appSecret: process.env.PINTEREST_APP_SECRET,
+    loginCallbackUrl: function() {
+      return self.server.HOST + "/oauth/pinterest/callback";
     }
   }
 }

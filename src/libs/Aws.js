@@ -1,12 +1,11 @@
 import fs from 'fs'
 import url from 'url'
-import * as AWS from 'aws-sdk'
+import AWS from 'aws-sdk'
 import config from '../config'
 
 export default function Aws(options={}) {
   const accessKeyId = options.accessKeyId || process.env.AWS_ACCESS_KEY_ID
   const secretAccessKey = options.secretAccessKey || process.env.AWS_SECRET_ACCESS_KEY
-  const region = options.region || process.env.AWS_REGION || 'us-east-1'
 
   return {
     S3: {
