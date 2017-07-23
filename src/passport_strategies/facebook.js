@@ -9,7 +9,7 @@ const FacebookStrategy = passport_facebook.Strategy
 export default {
   BUILTIN:    true,
   strategy:   FacebookStrategy,
-  condition:  config.facebook.appId,
+  condition:  !!config.facebook.appId,
   options: {
     clientID:           config.facebook.appId,
     clientSecret:       config.facebook.appSecret,

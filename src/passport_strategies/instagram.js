@@ -8,7 +8,7 @@ const InstagramStrategy = passport_instagram.Strategy
 export default {
   BUILTIN:    true,
   strategy:   InstagramStrategy,
-  condition:  config.instagram.appId,
+  condition:  !!config.instagram.appId,
   options: {
     clientID:           config.instagram.appId,
     clientSecret:       config.instagram.appSecret,

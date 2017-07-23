@@ -17,6 +17,7 @@
 /bin
 /routes
 /tasks
+/passport_strategies
 /config.js
 *.env
 

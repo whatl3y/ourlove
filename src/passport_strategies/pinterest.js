@@ -8,7 +8,7 @@ const PinterestStrategy = passport_pinterest.OAuth2Strategy
 export default {
   BUILTIN:  true,
   strategy:   PinterestStrategy,
-  condition:  config.pinterest.appId,
+  condition:  !!config.pinterest.appId,
   options: {
     clientID:           config.pinterest.appId,
     clientSecret:       config.pinterest.appSecret,
