@@ -19,12 +19,12 @@ export default class Relationships {
   }
 
   async getByPath(path=this.path) {
-    const records = await this.postgres.query(`
+    const { rows } = await this.postgres.query(`
       select * from relationships
       where path = $1
     `, [path])
-    if (records && records.rows.length)
-      return records.rows[0]
+    if (rows.length)
+      return rows[0]
     return null
   }
 

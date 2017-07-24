@@ -45,15 +45,12 @@ export default async function Api(req, res) {
               return res.status(400).json({error: 'You need to log in and create this relationship before uploading pictures.'})
 
             const userId = auth.getLoggedInUsersId()
-            let fileInfo, fileName, filePath, fileType, fields
-            // console.log('req.files', req.files)
-            // console.log('other fields', req.fields)
-            if (req.files && req.files.file) {
-              fileInfo  = req.files.file
-              fileName  = fileInfo.name
-              filePath  = fileInfo.path
-              fileType  = fileInfo.type
-              fields    = req.fields
+            let fileInfo, fileName, filePath, fileType
+            if (body.file) {
+              fileInfo = body.file
+              fileName = fileInfo.name
+              filePath = fileInfo.path
+              fileType = fileInfo.type
             }
 
             const imageHelpers      = new ImageHelpers()
@@ -65,7 +62,7 @@ export default async function Api(req, res) {
             await postgres.query(`
               insert into relationships_images (relationships_id, main_image_name, small_image_name)
               values ($1, $2, $3)
-            `, [record.id, mainS3FileName, smallerS3FileName])
+            `, [record.id, mainS3FileName.filename, smallerS3FileName.filename])
 
             return res.sendStatus(200)
 

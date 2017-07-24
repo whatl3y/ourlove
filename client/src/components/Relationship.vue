@@ -31,9 +31,9 @@
             </md-layout>
           </md-layout>
           <md-layout md-column md-flex>
-            <dropzone id="relationship-pictures" url="/api/v1.0/relationships/file_upload/relationship" v-on:vdropzone-success="showSuccess">
+            <dropzone id="relationship-pictures" :url="'/api/v1.0/relationships/file_upload/' + relationship_id" v-on:vdropzone-success="showSuccess">
               <!-- Optional parameters if any! -->
-              <input type="hidden" name="token" value="xxx">
+              <input type="hidden" name="token" value="">
             </dropzone>
           </md-layout>
         </md-layout>
@@ -50,6 +50,12 @@
         <div>or {{ dynamicTimes.monthsSinceStartDate }} months</div>
         <div>or {{ dynamicTimes.yearsSinceStartDate }} years</div>
       </div>
+      <md-layout md-column md-flex>
+        <dropzone id="relationship-pictures" :url="'/api/v1.0/relationships/file_upload/' + relationship_id" v-on:vdropzone-success="showSuccess">
+          <!-- Optional parameters if any! -->
+          <input type="hidden" name="token" value="">
+        </dropzone>
+      </md-layout>
     </md-layout>
 
   </md-layout>
