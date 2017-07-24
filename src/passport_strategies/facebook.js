@@ -26,13 +26,14 @@ export default function FacebookPassportStrategy(postgresClient) {
         const longLivedBody = await fbApi.longLivedToken(config.facebook.appId, config.facebook.appSecret)
 
         const intInfo = Object.assign({}, profile, {
-          type:         'facebook',
-          unique_id:    profile.id,
-          first_name:   profile.name.givenName,
-          last_name:    profile.name.familyName,
-          email:        profile.emails[0].value,
-          access_token: longLivedBody.access_token || accessToken,
-          expires:      new Date(Date.now() + (longLivedBody.expires_in * 1000))
+          type:           'facebook',
+          unique_id:      profile.id,
+          first_name:     profile.name.givenName,
+          last_name:      profile.name.familyName,
+          email:          profile.emails[0].value,
+          access_token:   longLivedBody.access_token || accessToken,
+          refresh_token:  refreshToken,
+          expires:        new Date(Date.now() + (longLivedBody.expires_in * 1000))
         })
 
         const userId  = await auth.findOrCreateUserAndIntegration(intInfo)

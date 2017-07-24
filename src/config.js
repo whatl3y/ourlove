@@ -1,4 +1,4 @@
-var self = module.exports = {
+const self = module.exports = {
   app: {
     name: process.env.APP_NAME || "ourlove.io"
   },
@@ -32,8 +32,6 @@ var self = module.exports = {
   aws: {
     access_key:         process.env.AWS_ACCESS_KEY_ID,
     access_secret:      process.env.AWS_SECRET_ACCESS_KEY,
-    uiq_access_key:     process.env.UIQ_AWS_ACCESS_KEY_ID,
-    uiq_access_secret:  process.env.UIQ_AWS_SECRET_ACCESS_KEY,
 
     s3: {
       bucket: process.env.AWS_S3_BUCKET || 'ourlove.io'

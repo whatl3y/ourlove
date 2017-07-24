@@ -46,7 +46,7 @@ export default class Relationships {
 
     const result = await this.postgres.query(`
       insert into relationships
-      (path, person1_name, person2_name, relationship_image, relationship_started, relationship_married)
+      (path, person1_name, person2_name, relationship_primary_image, relationship_started, relationship_married)
       values
       ($1, $2, $3, $4, $5, $6)
     `, params)

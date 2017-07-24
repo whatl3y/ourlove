@@ -21,12 +21,13 @@ export default function InstagramPassportStrategy(postgresClient) {
         var auth = new Auth({postgres:postgresClient, session:req.session})
 
         const intInfo = Object.assign({}, profile, {
-          type:         'instagram',
-          unique_id:    profile.id,
-          first_name:   profile.name.givenName,
-          last_name:    profile.name.familyName,
-          access_token: accessToken,
-          expires:      null
+          type:           'instagram',
+          unique_id:      profile.id,
+          first_name:     profile.name.givenName,
+          last_name:      profile.name.familyName,
+          access_token:   accessToken,
+          refresh_token:  refreshToken,
+          expires:        null
         })
 
         const userId = await auth.findOrCreateUserAndIntegration(intInfo)

@@ -17,35 +17,26 @@ export default function PinterestPassportStrategy(postgresClient) {
       passReqToCallback:  true
     },
     handler: async function(req, accessToken, refreshToken, profile, done) {
-      var auth = new Auth({postgres:postgresClient, session:req.session})
-      console.log('pinterest oauth return', accessToken, refreshToken, profile)
-      // try {
-      //   const auth = new Auth({db: config.mongodb.db, session: req.session})
-      //   const info = {
-      //     update: true,
-      //     $set: {
-      //       username: auth.getUsername(),
-      //       pinterest: {
-      //         id:             profile.id,
-      //         username:       profile.username,
-      //         name:           profile.displayName,
-      //         access_token:   accessToken,
-      //         expires:        null,
-      //         refresh_token:  refreshToken,
-      //         updated_at:     new Date()
-      //       }
-      //     }
-      //   }
-      //
-      //   const result = await auth.findOrCreateUser(info)
-      //
-      //   req.session.user.pinterest = result.pinterest
-      //   req.session.save()
-      //   done(null, result.username)
-      //
-      // } catch(err) {
-      //   done(err)
-      // }
+      try {
+        var auth = new Auth({postgres:postgresClient, session:req.session})
+
+        const intInfo = Object.assign({}, profile, {
+          type:           'pinterest',
+          unique_id:      profile.id,
+          first_name:     profile.displayName,
+          last_name:      null,
+          access_token:   accessToken,
+          refresh_token:  refreshToken,
+          expires:        null
+        })
+
+        const userId = await auth.findOrCreateUserAndIntegration(intInfo)
+        const _       = await auth.login({id: userId, [`int_${intInfo.unique_id}`]: 'pinterest', pinterest: intInfo})
+        return done(null, userId)
+
+      } catch(err) {
+        done(err)
+      }
     }
   }
 }

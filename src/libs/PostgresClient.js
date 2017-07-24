@@ -42,20 +42,20 @@ export default class PostgresClient {
 
   parseConnectionString(string, ssl=true) {
     const parsedUrl = url.parse(string)
-    let config = {
+    let connectionConfig = {
       host: parsedUrl.hostname,
       database: parsedUrl.path.substring(1)
     }
 
     // If the connection requires auth per the URL, parse and add it
-    // to the config
+    // to the connectionConfig
     const authInfo = (parsedUrl.auth) ? parsedUrl.auth.split(':') : null
     if (authInfo) {
-      config.user = authInfo[0]
-      config.password = authInfo[1]
-      config.ssl = ssl
+      connectionConfig.user = authInfo[0]
+      connectionConfig.password = authInfo[1]
+      connectionConfig.ssl = ssl
     }
 
-    return config
+    return connectionConfig
   }
 }

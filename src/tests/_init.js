@@ -18,7 +18,8 @@ async function _init(postgres, shouldTruncate) {
     createUsersOAuthIntegrationsIndexes(postgres),
     createRelationships(postgres),
     createRelationshipsIndexes(postgres),
-    createUsersRelationshipsMap(postgres)
+    createUsersRelationshipsMap(postgres),
+    createRelationshipsImages(postgres)
   ])
 
   if (shouldTruncate)
@@ -88,6 +89,21 @@ async function createUsersRelationshipsMap(postgres) {
       id serial PRIMARY KEY,
       user_id integer REFERENCES users,
       relationships_id integer REFERENCES relationships,
+      created_at timestamp(6) without time zone NOT NULL DEFAULT now(),
+      updated_at timestamp(6) without time zone NOT NULL DEFAULT now()
+    );
+  `)
+}
+
+async function createRelationshipsImages(postgres) {
+  await postgres.query(`
+    CREATE TABLE IF NOT EXISTS relationships_images (
+      id serial PRIMARY KEY,
+      relationships_id integer REFERENCES relationships,
+      main_image_name varchar(255),
+      small_image_name varchar(255),
+      tiny_image_name varchar(255),
+      image_taken date,
       created_at timestamp(6) without time zone NOT NULL DEFAULT now(),
       updated_at timestamp(6) without time zone NOT NULL DEFAULT now()
     );

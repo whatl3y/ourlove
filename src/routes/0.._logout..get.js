@@ -4,8 +4,7 @@ import config from '../config'
 
 const log = bunyan.createLogger(config.logger.options)
 
-export default function(req, res) {
-  const a = new Auth({session: req.session})
-  a.logout()
+export default function Logout(req, res) {
+  new Auth({session: req.session}).logout()
   return res.redirect("/")
 }

@@ -4,9 +4,11 @@ import Vue from 'vue'
 import VueMaterial from 'vue-material'
 import App from './App'
 import router from './router'
+import Dropzone from 'vue2-dropzone'
 import 'vue-material/dist/vue-material.css'
 
 Vue.use(VueMaterial)
+Vue.component('Dropzone', Dropzone)
 
 Vue.config.productionTip = false
 
