@@ -11,7 +11,7 @@ describe('Encryption', function() {
 
   describe('#encrypt()', function() {
     it(`should encrypt string without issue`, () => {
-      cipherText =enc.encrypt(originalText)
+      cipherText = enc.encrypt(originalText)
       assert.equal(typeof cipherText, 'string')
     })
   })
@@ -33,7 +33,7 @@ describe('Encryption', function() {
 
   describe('#fileToHash()', function() {
     it(`should hash file contents without issue`, done => {
-      enc.fileToHash(path.join(__dirname,'Audit.js'), done)
+      enc.fileToHash(path.join(__dirname, 'Encryption.js'), done)
     })
   })
 

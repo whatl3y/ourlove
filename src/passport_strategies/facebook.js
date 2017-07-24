@@ -6,65 +6,42 @@ import config from '../config'
 
 const FacebookStrategy = passport_facebook.Strategy
 
-export default {
-  BUILTIN:    true,
-  strategy:   FacebookStrategy,
-  condition:  !!config.facebook.appId,
-  options: {
-    clientID:           config.facebook.appId,
-    clientSecret:       config.facebook.appSecret,
-    callbackURL:        config.facebook.loginCallbackUrl(),
-    enableProof:        true,
-    passReqToCallback:  true,
-    profileFields:      ["id", "emails", "name"]
-  },
-  handler: function(req, accessToken, refreshToken, profile, done) {
-    var auth = new Auth({db:config.mongodb.db, session:req.session})
-    async.waterfall([
-      function(callback) {
-        auth.findOrCreateUser({username:auth.getUsername()},function(err,user) {
-          if (err) return callback(err)
-          if (typeof user.facebook === 'object') {
-            var tokenExpiresDate = user.facebook.expires
-            if (tokenExpiresDate.getTime() > new Date().getTime()) {
-              return callback(null,{
-                access_token: user.facebook.access_token,
-                expires: user.facebook.expires
-              })
-            }
-          }
+export default function FacebookPassportStrategy(postgresClient) {
+  return {
+    BUILTIN:    true,
+    strategy:   FacebookStrategy,
+    condition:  !!config.facebook.appId,
+    options: {
+      clientID:           config.facebook.appId,
+      clientSecret:       config.facebook.appSecret,
+      callbackURL:        config.facebook.loginCallbackUrl(),
+      enableProof:        true,
+      passReqToCallback:  true,
+      profileFields:      ["id", "emails", "name"]
+    },
+    handler: async function(req, accessToken, refreshToken, profile, done) {
+      try {
+        const auth          = new Auth({postgres:postgresClient, session:req.session})
+        const fbApi         = new FacebookGraphApi(accessToken)
+        const longLivedBody = await fbApi.longLivedToken(config.facebook.appId, config.facebook.appSecret)
 
-          var fbApi = new FacebookGraphApi(accessToken)
-          fbApi.longLivedToken(config.facebook.appId, config.facebook.appSecret, callback)
+        const intInfo = Object.assign({}, profile, {
+          type:         'facebook',
+          unique_id:    profile.id,
+          first_name:   profile.name.givenName,
+          last_name:    profile.name.familyName,
+          email:        profile.emails[0].value,
+          access_token: longLivedBody.access_token || accessToken,
+          expires:      new Date(Date.now() + (longLivedBody.expires_in * 1000))
         })
-      },
-      function(longLivedBody,callback) {
-        var info = {
-          update: true,
-          $set: {
-            username: auth.getUsername(),
-            facebook: {
-              id: profile.id,
-              firstname: profile.name.givenName,
-              lastname: profile.name.familyName,
-              email: profile.emails[0].value,
-              access_token: longLivedBody.access_token,
-              expires: (longLivedBody.expires instanceof Date) ? longLivedBody.expires : new Date(Date.now() + (longLivedBody.expires * 1000)),
-              refresh_token: refreshToken,
-              updated_at: new Date()
-            }
-          }
-        }
-        auth.findOrCreateUser(info,callback)
-      }
-    ],
-      function(err,result) {
-        if (err) return done(err)
 
-        req.session.user.facebook = result.facebook
-        req.session.save()
-        return done(null,result.username)
+        const userId  = await auth.findOrCreateUserAndIntegration(intInfo)
+        const _       = await auth.login({id: userId, [`int_${intInfo.unique_id}`]: 'facebook', facebook: intInfo})
+        return done(null, userId)
+
+      } catch(err) {
+        done(err)
       }
-    )
+    }
   }
 }

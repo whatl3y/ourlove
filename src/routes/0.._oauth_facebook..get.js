@@ -1,6 +1,5 @@
 import bunyan from 'bunyan'
 import passport from 'passport'
-import Routes from '../libs/Routes'
 import config from '../config'
 
 const log = bunyan.createLogger(config.logger.options)
@@ -11,7 +10,4 @@ if (config.oauth_scopes instanceof Array) {
   log.debug('Additional oauth_scopes found for facebook login: ' + additionalScopes.join(','))
 }
 
-export default [
-  Routes.requireLoginExpressMiddleware(),
-  passport.authenticate("facebook", {scope: [].concat(['email','user_photos'], additionalScopes)})
-]
+export default passport.authenticate("facebook", {scope: [].concat(['email'], additionalScopes)})

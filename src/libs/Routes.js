@@ -59,10 +59,11 @@ export default class Routes {
 
   static requireApiKeyExpressMiddleware() {
     return function(req, res, next) {
-      const correctApiKey = process.env.USERIQ_AUTH_CODE
-      const apiKeyProvided = req.headers['useriq-auth-code']
-      if (correctApiKey === apiKeyProvided)
+      const apiKeyProvided = req.headers['ourloveio-auth-code']
+      if (!!apiKeyProvided) {
+        // TODO confirm valid API key
         return next()
+      }
 
       return res.status(401).json({error: 'Invalid authentication code.'})
     }

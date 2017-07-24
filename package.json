@@ -11,13 +11,14 @@
     "url": "https://github.com/useriq-app/useriq-bigdata-stream.git"
   },
   "scripts": {
-    "dev": "nodemon forever",
+    "dev": "nodemon --exec 'nf start'",
     "start": "node forever",
     "postinstall": "gulp prep-prod",
     "test": "mocha --compilers js:babel-core/register --recursive './src/**/*.spec.js'"
   },
   "devDependencies": {
     "concurrently": "^3.5.0",
+    "foreman": "^2.0.0",
     "mocha": "^3.1.1"
   },
   "dependencies": {

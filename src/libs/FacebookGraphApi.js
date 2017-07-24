@@ -16,27 +16,31 @@ export default class FacebookGraphApi extends ApiHandler {
     })
   }
 
-  longLivedToken(appId,appSecret,callback) {
-    const longLivedBody = this.requestBody({
-      grant_type: 'fb_exchange_token',
-      client_id: appId,
-      client_secret: appSecret,
-      fb_exchange_token: this.access_token
-    })
-    const endpoint = `/oauth/access_token?${longLivedBody}`
-    this._request.get({
-      url: endpoint
-    },function(err,httpResponse,body) {
-      if (err) return callback(err)
-      if (httpResponse.statusCode !== 200) return callback(body)
+  longLivedToken(appId, appSecret) {
+    return new Promise((resolve, reject) => {
+      const longLivedBody = this.requestBody({
+        grant_type:         'fb_exchange_token',
+        client_id:          appId,
+        client_secret:      appSecret,
+        fb_exchange_token:  this.access_token
+      })
+      const endpoint = `/oauth/access_token?${longLivedBody}`
+      this._request.get({url: endpoint}, (err, httpResponse, body) => {
+        if (err)
+          return reject(err)
+        if (httpResponse.statusCode !== 200)
+          return reject(body)
 
-      const oBody = JSON.parse(body)
-      if (oBody.error) {
-        if (oBody.error.code === 190) {
-          return callback(new Error('Token expired, need to login again'))
+        const oBody = JSON.parse(body)
+        if (oBody.error) {
+          if (oBody.error.code === 190) {
+            const error = new Error('Token expired, need to login again')
+            reject(error)
+          }
         }
-      }
-      return callback(null,oBody)
+
+        resolve(oBody)
+      })
     })
   }
 

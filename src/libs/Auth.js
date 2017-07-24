@@ -10,82 +10,60 @@ export default class Auth {
     this._encryption  = new Encryption()
   }
 
-  async findOrCreateUser(data, callback=NOOP) {
-    // try {
-    //   data = data || {}
-    //   let username
-    //   let upsert = false
-    //   let update = false
-    //   let fields = {}
-    //   if (typeof data === 'string') {
-    //     username = data
-    //   } else {
-    //     username = (data.$set) ? data.$set.username : data.username
-    //     upsert = data.upsert || false
-    //     update = data.update || false
-    //     fields = data.fields || {}
-    //     delete(data.upsert)
-    //     delete(data.update)
-    //   }
-    //
-    //   const origRecord = await this.getAccount({username: username}, fields)
-    //
-    //   let updatedOrNewRecord
-    //   if (update || upsert)
-    //     updatedOrNewRecord = await this.updateAccount({username: username}, data, {upsert: upsert})
-    //
-    //   let recordToReturn = origRecord
-    //   this.user = origRecord
-    //   if (upsert || update) {
-    //     this.user = updatedOrNewRecord
-    //     recordToReturn = updatedOrNewRecord
-    //   }
-    //
-    //   if (typeof callback === 'function') callback(null, recordToReturn)
-    //   return recordToReturn
-    //
-    // } catch(err) {
-    //   if (typeof callback === 'function') callback(err)
-    //   throw err
-    // }
+  async findOrCreateUserAndIntegration(integrationData) {
+    const intExistsType = (this._session && this._session.user) ? this._session.user[`int_${integrationData.unique_id}`] : null
+    if (intExistsType && typeof this._session.user[intExistsType] === 'object')
+      return this._session.user[intExistsType].user_id
+
+    const integration = await this.getIntegration(integrationData.unique_id)
+    if (integration)
+      return integration.user_id
+
+    const existingUserId = (this._session && this._session.user) ? this._session.user.id : null
+    const newUserId = await this.createUserAndIntegration(existingUserId, integrationData)
+    return newUserId
   }
 
-  getAccount(filters={}, fields=null) {
-    // return new Promise((resolve, reject) => {
-    //   if (fields) {
-    //     return this._db.collection("accounts").find(filters, fields).toArray((e, record) => {
-    //       if (e) return reject(e)
-    //       resolve((record instanceof Array) ? record[0]: record)
-    //     })
-    //   }
-    //
-    //   this._db.collection("accounts").find(filters).toArray((e, record) => {
-    //     if (e) return reject(e)
-    //     resolve(record)
-    //   })
-    // })
+  async getUser(id) {
+    const { rows } = await this.postgres.query(`select * from users where id = $1`, [id])
+    return rows[0]
   }
 
-  updateAccount(filters, data, options={}) {
-    // return new Promise((resolve, reject) => {
-    //   if (options) {
-    //     return this._db.collection("accounts").update(filters, data, options, (e, result) => {
-    //       if (e) return reject(e)
-    //       if (data.$set) return resolve(data.$set)
-    //       resolve(data)
-    //     })
-    //   }
-    //
-    //   this._db.collection("accounts").update(filters, data, (e, result) => {
-    //     if (e) return reject(e)
-    //     if (data.$set) return resolve(data.$set)
-    //     resolve(data)
-    //   })
-    // })
+  async getIntegration(uniqueId) {
+    const { rows } = await this.postgres.query(`select * from users_oauth_integrations where unique_id = $1`, [uniqueId])
+    return (rows.length) ? rows[0] : null
   }
 
-  async validatePassword(enteredPassword, encryptedPassword) {
-    return await Encryption.comparePassword(enteredPassword, encryptedPassword)
+  async getIntegrationsFromUserId(userId) {
+    const { rows } = await this.postgres.query(`select * from users_oauth_integrations where user_id = $1`, [userId])
+    return (rows.length) ? rows : null
+  }
+
+  async createUserAndIntegration(userId, intInfo) {
+    if (!userId) {
+      const { rows } = await this.postgres.query(`insert into users (name) select $1 returning id`, [intInfo.first_name || intInfo.unique_id || 'INIT'])
+      if (rows.length)
+        userId = rows[0].id
+      else
+        throw new Error('There was a problem creating your user record.')
+    }
+
+    await this.postgres.query(`insert into users_oauth_integrations (
+      user_id,
+      type,
+      unique_id,
+      access_token,
+      refresh_token,
+      first_name,
+      last_name,
+      email,
+      expires
+    ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`, [
+      userId, intInfo.type, intInfo.unique_id, intInfo.access_token,
+      intInfo.refresh_token, intInfo.first_name, intInfo.last_name,
+      intInfo.email, intInfo.expires
+    ])
+    return userId
   }
 
   login(userObject=null) {
@@ -93,8 +71,6 @@ export default class Auth {
       this._session.user = this._session.user || {}
       userObject = userObject || this.user || this._session.user
       if (userObject) {
-        delete(userObject._id)
-        delete(userObject.password)
         for (var _key in userObject) {
           this._session.user[_key] = userObject[_key]
         }
@@ -113,11 +89,7 @@ export default class Auth {
     return null
   }
 
-  getUsername() {
-    return (this._session && typeof this._session.user === "object") ? this._session.user.username : null
-  }
-
   isLoggedIn() {
-    return !!this.getUsername()
+    return !!this._session.user
   }
 }

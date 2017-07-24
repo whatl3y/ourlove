@@ -46,7 +46,6 @@ var self = module.exports = {
 
   postgres: {
     connection_string: process.env.DATABASE_URL || 'postgres://localhost:5432',
-    readonly_connection_string: process.env.ANALYTICS_DATABASE_URL || process.env.DATABASE_URL || 'postgres://localhost:5432',
     maxClientsLarge: parseInt(process.env.POSTGRES_LARGE_MAX_CLIENTS || 10),
     maxClientsSmall: parseInt(process.env.POSTGRES_SMALL_MAX_CLIENTS || 2)
   },

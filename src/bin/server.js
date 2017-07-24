@@ -20,9 +20,11 @@ import passport from 'passport'
 import path from 'path'
 import bunyan from 'bunyan'
 import Routes from '../libs/Routes'
+import PostgresClient from '../libs/PostgresClient'
 import config from '../config'
 
 const app = express()
+const pgClient = new PostgresClient()
 const log = bunyan.createLogger(config.logger.options)
 
 const isHttpsFromHostname = config.server.HOST.indexOf('https://') > -1
@@ -111,12 +113,12 @@ async function startApp() {
   const strategies = fs.readdirSync("passport_strategies") || []
   strategies.forEach(stratFile => {
     try {
-      const oStrat = require(`../passport_strategies/${stratFile}`).default
+      const oStrat = require(`../passport_strategies/${stratFile}`).default(pgClient)
       if ((typeof oStrat.condition === 'undefined') || oStrat.condition) {
-        const stratName = path.basename(stratFile,".js")
+        const stratName = path.basename(stratFile, ".js")
 
-        if (oStrat.options) return passport.use(stratName,new oStrat.strategy(oStrat.options,oStrat.handler))
-        return passport.use(stratName,new oStrat.strategy(oStrat.handler))
+        if (oStrat.options) return passport.use(stratName, new oStrat.strategy(oStrat.options,oStrat.handler))
+        return passport.use(stratName, new oStrat.strategy(oStrat.handler))
       }
 
     } catch(err) {
