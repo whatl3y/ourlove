@@ -1,47 +1,41 @@
 <template>
-  <md-layout md-gutter class="relationship-container">
+  <md-layout md-align="center" class="main-wrapper relationship-container">
 
     <md-layout v-if="relationshipStatus('loading')" md-row md-align="center" class="create-relationship-container">
       <md-spinner md-indeterminate></md-spinner>
     </md-layout>
 
-    <md-layout v-if="relationshipStatus('none')" md-row md-align="center" class="create-relationship-container">
-      <md-layout md-column>
-        <h1 class="md-display-2">Create Relationship!</h1>
-        <md-layout md-row>
-          <md-layout md-column md-flex>
-            <md-input-container>
-              <label>First Person's Name</label>
-              <md-input v-model="newRelationship.p1name"></md-input>
-            </md-input-container>
-            <md-input-container>
-              <label>Second Person's Name</label>
-              <md-input v-model="newRelationship.p2name"></md-input>
-            </md-input-container>
-            <md-input-container>
-              <label>Relationship Start Date</label>
-              <md-input v-model="newRelationship.startDate"></md-input>
-            </md-input-container>
-            <md-input-container>
-              <label>Optional: Married Date</label>
-              <md-input v-model="newRelationship.marriedDate"></md-input>
-            </md-input-container>
-            <md-layout md-align="center">
-              <md-button v-on:click="createRelationship()" class="md-raised md-primary">Create Relationship Page</md-button>
-            </md-layout>
-          </md-layout>
-          <md-layout md-column md-flex>
-            <dropzone id="relationship-pictures" :url="'/api/v1.0/relationships/file_upload/' + relationship_id" v-on:vdropzone-success="showSuccess">
-              <!-- Optional parameters if any! -->
-              <input type="hidden" name="token" value="">
-            </dropzone>
+    <md-layout v-if="relationshipStatus('none')" md-column md-flex-medium="75" md-flex-large="50" class="text-center create-relationship-container">
+      <div class="md-display-2">Create Relationship!</div>
+      <md-layout>
+        <md-layout md-column>
+          <md-input-container>
+            <label>First Person's Name</label>
+            <md-input v-model="newRelationship.p1name"></md-input>
+          </md-input-container>
+          <md-input-container>
+            <label>Second Person's Name</label>
+            <md-input v-model="newRelationship.p2name"></md-input>
+          </md-input-container>
+          <md-input-container>
+            <label>Relationship Start Date</label>
+            <md-input v-model="newRelationship.startDate"></md-input>
+            <datepicker style="width:100%" v-model="startDate" v-on:closed="dateChanged"></datepicker>
+          </md-input-container>
+          <md-input-container>
+            <label>Optional: Married Date</label>
+            <md-input v-model="newRelationship.marriedDate"></md-input>
+            <datepicker style="width:100%" v-model="marriedDate" v-on:closed="dateChanged"></datepicker>
+          </md-input-container>
+          <md-layout md-align="center">
+            <md-button v-on:click="createRelationship()" class="md-raised md-primary">Create Relationship Page</md-button>
           </md-layout>
         </md-layout>
       </md-layout>
     </md-layout>
 
     <md-layout v-if="relationshipStatus('valid')" md-column md-vertical-align="center" class="valid-relationship-container">
-      <h1 class="md-display-2">{{ relationship.person1_name }} &amp; {{ relationship.person2_name }}</h1>
+      <div class="md-display-2">{{ relationship.person1_name }} &amp; {{ relationship.person2_name }}</div>
       <div v-if="relationship.relationship_started" md-column md-vertical-align="center">
         <div>You've been together for {{ dynamicTimes.secondsSinceStartDate }} seconds</div>
         <div>or {{ dynamicTimes.minutesSinceStartDate }} minutes</div>
@@ -58,6 +52,9 @@
       </md-layout>
     </md-layout>
 
+    <md-snackbar md-position="bottom center" ref="snackbar" md-duration="4000">
+      <span>{{ toastMessage }}</span>
+    </md-snackbar>
   </md-layout>
 </template>
 
@@ -73,7 +70,11 @@ const Relationship = {
   data() {
     return {
       loading: true,
+      toastMessage: null,
+      mainTimingInterval: null,
       newRelationship: {},
+      startDate: null,
+      marriedDate: null,
       relationship: null,
       dynamicTimes: {
         secondsSinceStartDate: null,
@@ -90,8 +91,20 @@ const Relationship = {
   },
 
   methods: {
+    openSnackbar(message, type='success') {
+      this.toastMessage = message
+      this.$refs.snackbar.open()
+    },
+
+    dateChanged() {
+      this.newRelationship = Object.assign({}, this.newRelationship, {
+        startDate: (this.startDate) ? moment(this.startDate).format('YYYY-MM-DD') : null,
+        marriedDate: (this.marriedDate) ? moment(this.marriedDate).format('YYYY-MM-DD') : null
+      })
+    },
+
     showSuccess(file) {
-      console.log('got here...')
+      this.openSnackbar('Successfully added picture!')
     },
 
     relationshipStatus(which) {
@@ -106,11 +119,26 @@ const Relationship = {
 
     async createRelationship() {
       try {
-        await Relationships.create(this.relationship_id, this.newRelationship)
-        // TODO add snackbar for success
+        const response = await Relationships.create(this.relationship_id, this.newRelationship)
+        await this.getRelationship(response.id)
+        this.openSnackbar('Successfully created relationship!')
       } catch(err) {
-        // TODO add snackbar for error
+        this.openSnackbar(`There was a problem creating your relationship.`, 'error')
+        console.log('error creating', err)
       }
+    },
+
+    async getRelationship(relaId=this.relationship_id) {
+      this.loading = true
+      const data = await Relationships.get(relaId)
+      this.relationship = data.relationship
+
+      if (this.relationship && !this.mainTimingInterval) {
+        this.updateRelationshipTime()
+        this.mainTimingInterval = setInterval(() => this.updateRelationshipTime(), 500)
+      }
+
+      this.loading = false
     },
 
     updateRelationshipTime() {
@@ -134,15 +162,7 @@ const Relationship = {
   },
 
   async created() {
-    const data = await Relationships.get(this.relationship_id)
-    this.relationship = data.relationship
-
-    if (this.relationship) {
-      this.updateRelationshipTime()
-      setInterval(() => this.updateRelationshipTime(), 500)
-    }
-
-    this.loading = false
+    await this.getRelationship()
   }
 }
 </script>

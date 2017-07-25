@@ -4,10 +4,17 @@ import Vue from 'vue'
 import VueMaterial from 'vue-material'
 import App from './App'
 import router from './router'
+
+// external components
+import Datepicker from 'vuejs-datepicker'
 import Dropzone from 'vue2-dropzone'
+
+// css
+import './css/main.scss'
 import 'vue-material/dist/vue-material.css'
 
 Vue.use(VueMaterial)
+Vue.component('datepicker', Datepicker)
 Vue.component('Dropzone', Dropzone)
 
 Vue.config.productionTip = false

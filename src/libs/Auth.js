@@ -90,7 +90,7 @@ export default class Auth {
   }
 
   getLoggedInUsersId() {
-    return this._session.user.id
+    return (this.isLoggedIn()) ? this._session.user.id : null
   }
 
   isLoggedIn() {

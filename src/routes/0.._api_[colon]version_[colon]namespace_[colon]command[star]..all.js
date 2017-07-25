@@ -34,9 +34,9 @@ export default async function Api(req, res) {
             if (record)
               return res.json({error: 'Unfortunately this relationship path has already been created.'}).status(400)
 
-            const newRecord = body.relationship
-            await relationship.create(newRecord)
-            return res.sendStatus(200)
+            const newRecord         = Object.assign(body.relationship, {user_id: auth.getLoggedInUsersId()})
+            const newRelationshipId = await relationship.create(newRecord)
+            return res.json({id: newRelationshipId})
 
           case 'file_upload':
             if (!auth.isLoggedIn())
@@ -69,7 +69,17 @@ export default async function Api(req, res) {
         }
         break
 
-      case 'users':
+      case 'auth':
+        switch(command) {
+          case 'integrations':
+            if (!auth.isLoggedIn())
+              return res.status(400).json({error: 'You are not logged in.'})
+
+            const integrations  = await auth.getIntegrationsFromUserId(req.session.id)
+            const types         = integrations.map(i => i.type)
+            res.json({integrations: types})
+            break
+        }
         break
     }
 
