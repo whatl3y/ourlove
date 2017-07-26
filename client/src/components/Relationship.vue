@@ -1,42 +1,30 @@
 <template>
-  <md-layout md-align="center" class="main-wrapper relationship-container">
+  <div class="container relationship-container">
 
-    <md-layout v-if="relationshipStatus('loading')" md-row md-align="center" class="create-relationship-container">
-      <md-spinner md-indeterminate></md-spinner>
-    </md-layout>
+    <div v-if="relationshipStatus('loading')" class="text-center create-relationship-container">
+      <i class="fa fa-4x fa-spinner fa-spin"></i>
+    </div>
 
-    <md-layout v-if="relationshipStatus('none')" md-column md-flex-medium="75" md-flex-large="50" class="text-center create-relationship-container">
-      <div class="md-display-2">Create Relationship!</div>
-      <md-layout>
-        <md-layout md-column>
-          <md-input-container>
-            <label>First Person's Name</label>
-            <md-input v-model="newRelationship.p1name"></md-input>
-          </md-input-container>
-          <md-input-container>
-            <label>Second Person's Name</label>
-            <md-input v-model="newRelationship.p2name"></md-input>
-          </md-input-container>
-          <md-input-container>
-            <label>Relationship Start Date</label>
-            <md-input v-model="newRelationship.startDate"></md-input>
-            <datepicker style="width:100%" v-model="startDate" v-on:closed="dateChanged"></datepicker>
-          </md-input-container>
-          <md-input-container>
-            <label>Optional: Married Date</label>
-            <md-input v-model="newRelationship.marriedDate"></md-input>
-            <datepicker style="width:100%" v-model="marriedDate" v-on:closed="dateChanged"></datepicker>
-          </md-input-container>
-          <md-layout md-align="center">
-            <md-button v-on:click="createRelationship()" class="md-raised md-primary">Create Relationship Page</md-button>
-          </md-layout>
-        </md-layout>
-      </md-layout>
-    </md-layout>
+    <div v-if="relationshipStatus('none')" class="col create-relationship-container">
+      <h1 class="text-center">Create Relationship!</h1>
+      <div class="col col-md-6 offset-md-3">
+        <label>First Person's Name</label>
+        <b-form-input v-model="newRelationship.p1name"></b-form-input>
+        <label>Second Person's Name</label>
+        <b-form-input v-model="newRelationship.p2name"></b-form-input>
+        <label>Relationship Start Date</label>
+        <datepicker style="width:100%" format="MMMM dd, yyyy" :bootstrap-styling="true" v-model="startDate" v-on:closed="dateChanged"></datepicker>
+        <label>Optional: Married Date</label>
+        <datepicker style="width:100%" format="MMMM dd, yyyy" :bootstrap-styling="true" v-model="marriedDate" v-on:closed="dateChanged"></datepicker>
+        <div class="text-center padding-md">
+          <b-button size="lg" variant="primary" v-on:click="createRelationship()">Create Relationship Page</b-button>
+        </div>
+      </div>
+    </div>
 
-    <md-layout v-if="relationshipStatus('valid')" md-column md-vertical-align="center" class="valid-relationship-container">
-      <div class="md-display-2">{{ relationship.person1_name }} &amp; {{ relationship.person2_name }}</div>
-      <div v-if="relationship.relationship_started" md-column md-vertical-align="center">
+    <div v-if="relationshipStatus('valid')" class="col text-center valid-relationship-container">
+      <h1>{{ relationship.person1_name }} &amp; {{ relationship.person2_name }}</h1>
+      <div v-if="relationship.relationship_started" class="col">
         <div>You've been together for {{ dynamicTimes.secondsSinceStartDate }} seconds</div>
         <div>or {{ dynamicTimes.minutesSinceStartDate }} minutes</div>
         <div>or {{ dynamicTimes.daysSinceStartDate }} days</div>
@@ -44,18 +32,18 @@
         <div>or {{ dynamicTimes.monthsSinceStartDate }} months</div>
         <div>or {{ dynamicTimes.yearsSinceStartDate }} years</div>
       </div>
-      <md-layout md-column md-flex>
+      <div class="col col-md-6 offset-md-3">
         <dropzone id="relationship-pictures" :url="'/api/v1.0/relationships/file_upload/' + relationship_id" v-on:vdropzone-success="showSuccess">
           <!-- Optional parameters if any! -->
-          <input type="hidden" name="token" value="">
+          <!-- <input type="hidden" name="token" value=""> -->
         </dropzone>
-      </md-layout>
-    </md-layout>
+      </div>
+    </div>
 
-    <md-snackbar md-position="bottom center" ref="snackbar" md-duration="4000">
+    <!-- <md-snackbar ref="snackbar" md-duration="4000">
       <span>{{ toastMessage }}</span>
-    </md-snackbar>
-  </md-layout>
+    </md-snackbar> -->
+  </div>
 </template>
 
 <script>
@@ -93,7 +81,7 @@ const Relationship = {
   methods: {
     openSnackbar(message, type='success') {
       this.toastMessage = message
-      this.$refs.snackbar.open()
+      // this.$refs.snackbar.open()
     },
 
     dateChanged() {

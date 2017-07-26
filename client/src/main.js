@@ -1,7 +1,7 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
-import VueMaterial from 'vue-material'
+import BootstrapVue from 'bootstrap-vue'
 import App from './App'
 import router from './router'
 
@@ -11,9 +11,10 @@ import Dropzone from 'vue2-dropzone'
 
 // css
 import './css/main.scss'
-import 'vue-material/dist/vue-material.css'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-Vue.use(VueMaterial)
+Vue.use(BootstrapVue)
 Vue.component('datepicker', Datepicker)
 Vue.component('Dropzone', Dropzone)
 

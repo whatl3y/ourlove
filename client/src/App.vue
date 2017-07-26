@@ -1,7 +1,7 @@
 <template>
-  <md-layout id="app">
+  <div id="app">
     <router-view></router-view>
-  </md-layout>
+  </div>
 </template>
 
 <script>
