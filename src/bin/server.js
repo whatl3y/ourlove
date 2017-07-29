@@ -78,7 +78,7 @@ async function startApp() {
     const RedisStore = ConnectRedis(session)
     app.use(
       session({
-        store:              new RedisStore({client: config.redis.client, disableTTL: true}),
+        store:              new RedisStore({client: config.redis.client, ttl: 60 * 60 * 24 * 30}),
         secret:             config.session.sessionSecret,
         key:                config.session.sessionCookieKey,
         resave:             true,
@@ -109,6 +109,7 @@ async function startApp() {
     routes.forEach(route => {
       try {
         app[route.verb.toLowerCase()](route.path, oRoutes[route.file].default)
+        log.debug(`Successfully bound route to express; method: ${route.verb}; path: ${route.path}`)
       } catch(err) {
         log.error(err, `Error binding route to express; method: ${route.verb}; path: ${route.path}`)
       }

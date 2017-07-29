@@ -1,8 +1,7 @@
-<template>
-  <div class="main col text-center">
-    <h1 class="md-display-2">This is ourlove.io!</h1>
-    <div>Create your relationships now!</div>
-  </div>
+<template lang="pug">
+  div.main.col.text-center
+    h1.display-1 This is ourlove.io!
+    div Create your relationships now!
 </template>
 
 <script>

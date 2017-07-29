@@ -34,7 +34,7 @@ export default class Auth {
     return (rows.length) ? rows[0] : null
   }
 
-  async getIntegrationsFromUserId(userId) {
+  async getIntegrationsFromUserId(userId=this.getLoggedInUsersId()) {
     const { rows } = await this.postgres.query(`select * from users_oauth_integrations where user_id = $1`, [userId])
     return (rows.length) ? rows : null
   }

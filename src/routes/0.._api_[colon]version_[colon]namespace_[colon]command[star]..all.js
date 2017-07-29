@@ -71,14 +71,27 @@ export default async function Api(req, res) {
 
       case 'auth':
         switch(command) {
+          case 'logged_in':
+            return res.json(auth.isLoggedIn())
+            
           case 'integrations':
             if (!auth.isLoggedIn())
-              return res.status(400).json({error: 'You are not logged in.'})
+              return res.json({logged_in: false})
 
-            const integrations  = await auth.getIntegrationsFromUserId(req.session.id)
+            const integrations  = await auth.getIntegrationsFromUserId()
             const types         = integrations.map(i => i.type)
-            res.json({integrations: types})
-            break
+            const displayName   = (() => {
+              if (integrations instanceof Array) {
+                const fb = integrations.filter(int => int.type === 'facebook')[0]
+                const ig = integrations.filter(int => int.type === 'instagram')[0]
+                const pi = integrations.filter(int => int.type === 'pinterest')[0]
+                if (fb) return fb.first_name
+                if (ig) return ig.first_name
+                if (pi) return pi.first_name
+              }
+              return null
+            })()
+            return res.json({logged_in: true, display_name: displayName, integrations: types})
         }
         break
     }

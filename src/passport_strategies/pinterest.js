@@ -19,18 +19,20 @@ export default function PinterestPassportStrategy(postgresClient) {
     handler: async function(req, accessToken, refreshToken, profile, done) {
       try {
         var auth = new Auth({postgres:postgresClient, session:req.session})
+        const firstName = (profile.displayName) ? profile.displayName.split(' ')[0] : null
+        const lastName = (profile.displayName) ? profile.displayName.split(' ')[1] : null
 
         const intInfo = Object.assign({}, profile, {
           type:           'pinterest',
           unique_id:      profile.id,
-          first_name:     profile.displayName,
-          last_name:      null,
+          first_name:     firstName,
+          last_name:      lastName,
           access_token:   accessToken,
           refresh_token:  refreshToken,
           expires:        null
         })
 
-        const userId = await auth.findOrCreateUserAndIntegration(intInfo)
+        const userId  = await auth.findOrCreateUserAndIntegration(intInfo)
         const _       = await auth.login({id: userId, [`int_${intInfo.unique_id}`]: 'pinterest', pinterest: intInfo})
         return done(null, userId)
 
