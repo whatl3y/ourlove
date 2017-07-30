@@ -7,5 +7,9 @@ export default {
   async getIntegrations() {
     const response = await ourloveFetch(`/api/v1.0/auth/integrations`)
     return response.json()
+  },
+
+  async setReturnTo(path) {
+    await ourloveFetch(`/api/v1.0/auth/set_return_to/${path}`)
   }
 }

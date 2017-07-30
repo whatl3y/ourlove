@@ -18,7 +18,9 @@
           a(href="/oauth/pinterest")
             i.fa.fa-5x.fa-pinterest-square.margin-left-md(aria-hidden="true")
       div(v-if="isLoggedIn")
-        h1.text-center Create Relationship
+        div.text-center
+          h1.display-1 {{ relationship_id }}
+          h3 Create Relationship
         div.col.col-md-6.offset-md-3
           label First Person's Name
           b-form-input(v-model="newRelationship.p1name")
@@ -156,8 +158,12 @@ const Relationship = {
   },
 
   async created() {
-    this.isLoggedIn = await AuthFactory.isLoggedIn()
-    await this.getRelationship()
+    const responses = await Promise.all([
+      AuthFactory.isLoggedIn(),
+      AuthFactory.setReturnTo(this.relationship_id),
+      this.getRelationship()
+    ])
+    this.isLoggedIn = responses[0]
   }
 }
 </script>

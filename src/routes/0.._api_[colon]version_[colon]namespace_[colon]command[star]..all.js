@@ -73,7 +73,12 @@ export default async function Api(req, res) {
         switch(command) {
           case 'logged_in':
             return res.json(auth.isLoggedIn())
-            
+
+          case 'set_return_to':
+            req.session.returnTo = info
+            req.session.save()
+            return res.sendStatus(200)
+
           case 'integrations':
             if (!auth.isLoggedIn())
               return res.json({logged_in: false})
