@@ -14,7 +14,7 @@ export default new VueRouter({
       name: 'Home',
       component: Home
     },
-    { path: '/file', component: ReloadPage },
+    { path: '/file/*', component: ReloadPage },
     { path: '/logout', component: ReloadPage },
     { path: '/oauth/*', component: ReloadPage },
     { path: '/redirect', component: ReloadPage },
