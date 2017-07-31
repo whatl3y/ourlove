@@ -30,6 +30,10 @@ export default async function Api(req, res) {
           case 'get':
             return res.json({relationship: record})
 
+          case 'get_images':
+            const images = await relationship.getImages()
+            return res.json(images)
+
           case 'create':
             if (record)
               return res.json({error: 'Unfortunately this relationship path has already been created.'}).status(400)
@@ -64,7 +68,11 @@ export default async function Api(req, res) {
               values ($1, $2, $3)
             `, [record.id, mainS3FileName.filename, smallerS3FileName.filename])
 
-            return res.sendStatus(200)
+            return res.json({
+              main_image_name:  mainS3FileName.filename,
+              small_image_name: smallerS3FileName.filename,
+              created_at:       new Date()
+            })
 
         }
         break
@@ -73,6 +81,10 @@ export default async function Api(req, res) {
         switch(command) {
           case 'logged_in':
             return res.json(auth.isLoggedIn())
+
+          case 'relationship_admin':
+            const isAdmin = await auth.isUserAdminOfRelationship(info)
+            return res.json(isAdmin)
 
           case 'set_return_to':
             req.session.returnTo = info

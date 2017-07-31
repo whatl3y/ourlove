@@ -1,7 +1,9 @@
 $dark_color:      #740037;
 $main_color:      #b72168;
-$secondary_color: #f5f5f5;
-$tertiary_color:  #e0ea50;
+$secondary_color: #21b729;
+$tertiary_color:  #b2b721;
+$light_color:     #f5f5f5;
+$gray:            #b0b0b0;
 
 @font-face {
   font-family: esphimere;
@@ -15,10 +17,18 @@ body {
 
 a {
   color: $main_color !important;
+
+  &.gray {
+    color: $gray !important;
+  }
 }
 
 #app {
   color: $main_color;
+}
+
+.gray {
+  color: $gray;
 }
 
 .btn-ourlove {
@@ -44,7 +54,7 @@ a {
 
   .navbar-inverse {
     .navbar-toggler {
-      border-color: $secondary_color;
+      border-color: $light_color;
     }
   }
 }
@@ -91,4 +101,16 @@ a {
 
 .margin-vertical-xlg {
   margin: 50px 0px
+}
+
+.margin-top-md {
+  margin-top: 15px;
+}
+
+.border-left-sm {
+  border-left: 1px solid $light_color;
+}
+
+.table-inverse {
+  background: $dark_color !important;
 }

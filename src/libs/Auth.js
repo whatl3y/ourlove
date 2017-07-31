@@ -66,6 +66,15 @@ export default class Auth {
     return userId
   }
 
+  async isUserAdminOfRelationship(path, userId=this.getLoggedInUsersId()) {
+    const { rows } = await this.postgres.query(`
+      select r.* from users_relationships_map as m
+      inner join relationships as r on r.id = m.relationships_id
+      where m.user_id = $1 and r.path = $2
+    `, [userId, path])
+    return rows.length > 0
+  }
+
   login(userObject=null) {
     if (this._session) {
       this._session.user = this._session.user || {}

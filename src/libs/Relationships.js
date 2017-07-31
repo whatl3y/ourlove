@@ -28,6 +28,15 @@ export default class Relationships {
     return null
   }
 
+  async getImages(path=this.path) {
+    const { rows } = await this.postgres.query(`
+      select i.* from relationships_images as i
+      inner join relationships as r on r.id = i.relationships_id
+      where r.path = $1
+    `, [path])
+    return rows
+  }
+
   async create(data, path=this.path) {
     const startDate = data.startDate || data.relationship_started
     const dStartDate = (startDate) ? moment.utc(startDate).toDate() : null
@@ -45,7 +54,7 @@ export default class Relationships {
       dMarriedDate
     ]
 
-    const result = await this.postgres.query(`
+    const { rows } = await this.postgres.query(`
       insert into relationships
       (path, created_user_id, person1_name, person2_name, relationship_primary_image, relationship_started, relationship_married)
       values
@@ -53,6 +62,13 @@ export default class Relationships {
       returning id
     `, params)
 
-    return (result) ? result.id : false
+    const relationshipId = rows[0].id
+    if (relationshipId) {
+      await this.postgres.query(`
+        insert into users_relationships_map (user_id, relationships_id) values ($1, $2)
+      `, [data.user_id, relationshipId])
+    }
+
+    return relationshipId
   }
 }

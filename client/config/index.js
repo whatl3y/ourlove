@@ -31,6 +31,7 @@ module.exports = {
       ['/api']: 'http://dev.ourlove.io:8000',
       ['/public']: 'http://dev.ourlove.io:8000',
       ['/oauth']: 'http://dev.ourlove.io:8000',
+      ['/file']: 'http://dev.ourlove.io:8000',
       ['/redirect']: 'http://dev.ourlove.io:8000',
       ['/logout']: 'http://dev.ourlove.io:8000'
     },

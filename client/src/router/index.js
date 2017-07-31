@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '@/components/Home'
-import Relationship from '@/components/Relationship'
+import RelationshipWrapper from '@/components/RelationshipWrapper'
 import ReloadPage from '@/components/ReloadPage'
 
 Vue.use(VueRouter)
@@ -20,8 +20,8 @@ export default new VueRouter({
     { path: '/redirect', component: ReloadPage },
     {
       path: '/:relationship_id*',
-      name: 'Relationship',
-      component: Relationship,
+      name: 'RelationshipWrapper',
+      component: RelationshipWrapper,
       props: true
     }
   ]

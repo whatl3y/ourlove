@@ -4,6 +4,11 @@ export default {
     return response.json()
   },
 
+  async getImages(path) {
+    const response = await ourloveFetch(`/api/v1.0/relationships/get_images/${path}`)
+    return response.json()
+  },
+
   async create(path, info) {
     const response = await ourloveFetch(`/api/v1.0/relationships/create/${path}`, {
       method: 'POST',

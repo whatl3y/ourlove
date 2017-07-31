@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import BootstrapVue from 'bootstrap-vue'
 import fetchDefaults from 'fetch-defaults'
+import * as FastClick from 'fastclick'
 import App from './App'
 import router from './router'
 
@@ -18,6 +19,11 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import './css/main.scss'
 
 window.ourloveFetch = fetchDefaults(fetch, {credentials: 'same-origin'})
+
+// Initiate FastClick for mobile devices to remove the built-in 300ms
+// delay. Read more in https://github.com/ftlabs/fastclick
+if ('addEventListener' in document)
+  document.addEventListener('DOMContentLoaded', () => FastClick.attach(document.body), false)
 
 Vue.use(BootstrapVue)
 Vue.component('vue-toastr', Toastr)
