@@ -114,3 +114,59 @@ a {
 .table-inverse {
   background: $dark_color !important;
 }
+
+.force-circle {
+  overflow: hidden;
+  border-radius: 50%;
+
+  &.w-100 {
+    max-width: 100px;
+    max-height: 100px;
+
+    img.landscape {
+      margin-left: -25px;
+    }
+  }
+
+  &.w-200 {
+    max-width: 200px;
+    max-height: 200px;
+
+    img.landscape {
+      margin-left: -50px;
+    }
+  }
+
+  &.w-300 {
+    max-width: 300px;
+    max-height: 300px;
+
+    img.landscape {
+      margin-left: -75px;
+    }
+  }
+
+  &.w-400 {
+    max-width: 400px;
+    max-height: 400px;
+
+    img.landscape {
+      margin-left: -100px;
+    }
+  }
+
+  img {
+    width: auto;
+    height: 100%;
+
+    &.landscape {
+      width: auto;
+      height: 100%;
+    }
+
+    &.portrait {
+      width: 100%;
+      height: auto;
+    }
+  }
+}

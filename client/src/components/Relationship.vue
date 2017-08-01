@@ -8,9 +8,18 @@
           i.fa.fa-gear
     h1.text-center {{ relationship.person1_name }} &amp; {{ relationship.person2_name }}
     div.row(v-if="!editMode")
-      div.col
-        div main info
-      div.col-md-3
+      div.col-lg-3.d-flex.justify-content-center
+        div(v-if="!primaryImage")
+          div
+            i You don't have any pictures yet! Add some by &nbsp;
+            u
+              a(href="javascript:void(0)",@click="updateEditMode") editing your relationship
+            span  and they'll show up here!
+        div.img-thumbnail.force-circle.w-200(v-if="primaryImage")
+          img(:class="{ portrait: primaryImage.orientation == 'portrait', landscape: primaryImage.orientation == 'landscape' }",:src="'/file/s3/' + primaryImage.main_image_name")
+      div.col.text-center
+        div Some more information!
+      div.col-lg-3
         h2
           u Stats
         div(v-if="relationship.relationship_started")
@@ -111,6 +120,7 @@ const Relationship = {
       editMode:                 false,
       editTabIndex:             0,
       relationshipImages:       [],
+      primaryImage:             null,
       pictureUploadLoading:     false,
       mainTimingInterval:       null,
       relationshipDynamicTimes: {
@@ -165,6 +175,11 @@ const Relationship = {
       })
     },
 
+    setPrimaryImage() {
+      const primaryImages = this.relationshipImages.filter(img => img.relationship_primary_image)
+      this.primaryImage   = (primaryImages.length > 0) ? primaryImages[0] : this.relationshipImages[0]
+    },
+
     async updateRelationship() {
       try {
         const allowedKeys   = ['person1_name', 'person2_name', 'relationship_started', 'relationship_married']
@@ -190,6 +205,8 @@ const Relationship = {
 
     this.isRelationshipAdmin  = responses[0]
     this.relationshipImages   = responses[1]
+
+    this.setPrimaryImage()
   }
 }
 </script>

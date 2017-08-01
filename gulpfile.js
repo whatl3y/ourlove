@@ -75,5 +75,21 @@ gulp.task('routes-prod', function() {
     .pipe(gulp.dest("./routes"))
 })
 
-gulp.task('prep-dev', ['config', 'libs-dev', 'bin-dev', 'passport-dev', 'routes-dev'], function() {})
-gulp.task('prep-prod', ['config', 'libs-prod', 'bin-prod', 'passport-prod', 'routes-prod'], function() {})
+gulp.task('tasks-dev', function() {
+  return gulp.src("./src/tasks/**/*.js")
+    .pipe(babel())
+    .pipe(gulp.dest("./tasks"))
+})
+
+gulp.task('tasks-prod', function() {
+  return gulp.src("./src/tasks/**/*.js")
+    // .pipe(sourcemaps.init())
+    .pipe(plumber())
+    .pipe(babel())
+    // .pipe(uglify().on('error', console.log))
+    // .pipe(sourcemaps.write('./maps'))
+    .pipe(gulp.dest("./tasks"))
+})
+
+gulp.task('prep-dev', ['config', 'libs-dev', 'bin-dev', 'passport-dev', 'routes-dev', 'tasks-dev'], function() {})
+gulp.task('prep-prod', ['config', 'libs-prod', 'bin-prod', 'passport-prod', 'routes-prod', 'tasks-prod'], function() {})

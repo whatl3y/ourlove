@@ -49,16 +49,15 @@ export default class Relationships {
       data.user_id,
       data.p1name || data.person1_name,
       data.p2name || data.person2_name,
-      data.relationship_image || data.relationship_primary_image || null,
       dStartDate,
       dMarriedDate
     ]
 
     const { rows } = await this.postgres.query(`
       insert into relationships
-      (path, created_user_id, person1_name, person2_name, relationship_primary_image, relationship_started, relationship_married)
+      (path, created_user_id, person1_name, person2_name, relationship_started, relationship_married)
       values
-      ($1, $2, $3, $4, $5, $6, $7)
+      ($1, $2, $3, $4, $5, $6)
       returning id
     `, params)
 

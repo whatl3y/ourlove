@@ -63,18 +63,26 @@ export default async function Api(req, res) {
 
             const imageHelpers      = new ImageHelpers()
             const finalLwipImage    = await imageHelpers.rotateImagePerExifOrientation('fs', filePath)
-            const newImageBuffer    = await imageHelpers.toBuffer(finalLwipImage, ImageHelpers.getImageTypeFromFile(fileName))
-            const mainS3FileName    = await s3.writeFile({filename: fileName, data: newImageBuffer})
-            const smallerS3FileName = await imageHelpers.uploadSmallImageFromSource({jpg: true, filename: fileName, data: newImageBuffer})
+            const newImageBuffer    = await imageHelpers.toBuffer(finalLwipImage, 'jpg')    //ImageHelpers.getImageTypeFromFile(fileName))
+            const [w, h]            = await imageHelpers.dimensions(finalLwipImage)
+            const orientation       = (w / h > 1) ? 'landscape' : 'portrait'
+
+            const [mainS3FileName, smallerS3FileName, tinyS3FileName] = await Promise.all([
+              s3.writeFile({filename: fileName, data: newImageBuffer}),
+              imageHelpers.uploadSmallImageFromSource({jpg: true, filename: fileName, data: newImageBuffer, size: 400}),
+              imageHelpers.uploadSmallImageFromSource({jpg: true, filename: fileName, data: newImageBuffer, size: 150}),
+            ])
 
             await postgres.query(`
-              insert into relationships_images (relationships_id, main_image_name, small_image_name)
-              values ($1, $2, $3)
-            `, [record.id, mainS3FileName.filename, smallerS3FileName.filename])
+              insert into relationships_images (relationships_id, main_image_name, small_image_name, tiny_image_name, orientation)
+              values ($1, $2, $3, $4, $5)
+            `, [record.id, mainS3FileName.filename, smallerS3FileName.filename, tinyS3FileName.filename, orientation])
 
             return res.json({
               main_image_name:  mainS3FileName.filename,
               small_image_name: smallerS3FileName.filename,
+              tiny_image_name:  tinyS3FileName.filename,
+              orientation:      orientation,
               created_at:       new Date()
             })
 

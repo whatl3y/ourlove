@@ -8,8 +8,6 @@ import App from './App'
 import router from './router'
 
 // external libraries and components
-import Masonry from 'masonry-layout'
-import VueMasonryPlugin from 'vue-masonry'
 import Toastr from 'vue-toastr'
 import Datepicker from './components/Datepicker'
 import Dropzone from 'vue2-dropzone'
@@ -29,7 +27,6 @@ if ('addEventListener' in document)
   document.addEventListener('DOMContentLoaded', () => FastClick.attach(document.body), false)
 
 Vue.use(BootstrapVue)
-Vue.use(VueMasonryPlugin)
 Vue.component('vue-toastr', Toastr)
 Vue.component('datepicker', Datepicker)
 Vue.component('Dropzone', Dropzone)
