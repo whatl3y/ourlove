@@ -7,10 +7,13 @@ import * as FastClick from 'fastclick'
 import App from './App'
 import router from './router'
 
-// external components
+// external libraries and components
+import Masonry from 'masonry-layout'
+import VueMasonryPlugin from 'vue-masonry'
 import Toastr from 'vue-toastr'
-import Datepicker from 'vuejs-datepicker'
+import Datepicker from './components/Datepicker'
 import Dropzone from 'vue2-dropzone'
+import FormRequiredInput from './components/FormRequiredInput'
 
 // css
 import 'vue-toastr/src/vue-toastr.less'
@@ -26,9 +29,11 @@ if ('addEventListener' in document)
   document.addEventListener('DOMContentLoaded', () => FastClick.attach(document.body), false)
 
 Vue.use(BootstrapVue)
+Vue.use(VueMasonryPlugin)
 Vue.component('vue-toastr', Toastr)
 Vue.component('datepicker', Datepicker)
 Vue.component('Dropzone', Dropzone)
+Vue.component('FormRequiredInput', FormRequiredInput)
 
 Vue.config.productionTip = false
 

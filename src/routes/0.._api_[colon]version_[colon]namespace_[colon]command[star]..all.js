@@ -42,6 +42,10 @@ export default async function Api(req, res) {
             const newRelationshipId = await relationship.create(newRecord)
             return res.json({id: newRelationshipId})
 
+          case 'update':
+            const existingRelationshipId = await relationship.update(body.relationship)
+            return res.json({id: existingRelationshipId})
+
           case 'file_upload':
             if (!auth.isLoggedIn())
               return res.status(400).json({error: 'You must be logged in to upload files so we know who owns them!'})

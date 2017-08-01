@@ -71,4 +71,24 @@ export default class Relationships {
 
     return relationshipId
   }
+
+  async update(data, path=this.path) {
+    let queryAry = ['update relationships set']
+    let paramsAry = []
+    let paramIndTracker = 1
+
+    Object.keys(data).forEach(key => {
+      queryAry.push(`${key} = $${paramIndTracker},`)
+      paramsAry.push(data[key])
+      paramIndTracker++
+    })
+
+    queryAry.push('updated_at = now()')
+    queryAry.push(`where path = $${paramIndTracker}`)
+    paramsAry.push(path)
+
+    const queryString = queryAry.concat(['returning id']).join(' ')
+    const { rows } = await this.postgres.query(queryString, paramsAry)
+    return (rows[0]) ? rows[0].id : null
+  }
 }

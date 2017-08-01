@@ -18,5 +18,16 @@ export default {
       body: JSON.stringify({relationship: info})
     })
     return response.json()
+  },
+
+  async update(path, info) {
+    const response = await ourloveFetch(`/api/v1.0/relationships/update/${path}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({relationship: info})
+    })
+    return response.json()
   }
 }

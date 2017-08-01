@@ -5,8 +5,8 @@
 
     div.col.create-relationship-container(v-if="relationshipStatus('none')")
       div.text-center(v-if="!isLoggedIn")
-        h1.display-1 {{ relationship_id }}
-        h3.display-3 is available!
+        h1 {{ relationship_id }}
+        h4 is available!
         div Login today by clicking on one of the providers below to create your page now!
         div.margin-vertical-xlg
           a(href="/oauth/facebook")
@@ -17,17 +17,13 @@
             i.fa.fa-5x.fa-pinterest-square.margin-left-md(aria-hidden="true")
       div(v-if="isLoggedIn")
         div.text-center
-          h1.display-1 {{ relationship_id }}
-          h3 Create Relationship
+          h1 {{ relationship_id }}
+          h4 Create Relationship
         div.col.col-md-6.offset-md-3
-          label First Person's Name
-          b-form-input(v-model="newRelationship.p1name")
-          label Second Person's Name
-          b-form-input(v-model="newRelationship.p2name")
-          label Relationship Start Date
-          datepicker(format="MMMM dd, yyyy",:bootstrap-styling="true",v-model="startDate",v-on:closed="dateChanged")
-          label Optional: Married Date
-          datepicker(format="MMMM dd, yyyy",:bootstrap-styling="true",v-model="marriedDate",v-on:closed="dateChanged")
+          form-required-input(v-model="newRelationship.p1name",label="First Person's Name")
+          form-required-input(v-model="newRelationship.p2name",label="Second Person's Name")
+          datepicker(label="Relationship Start Date",v-model="newRelationship.startDate")
+          datepicker(label="Optional: Married Date",v-model="newRelationship.marriedDate")
           div.text-center.padding-md
             b-button.btn-ourlove-dark(size="lg",v-on:click="createRelationship()") Create Relationship Page
 
@@ -66,6 +62,7 @@ const RelationshipWrapper = {
     },
 
     dateChanged() {
+      return console.log('args', this.newRelationship, arguments)
       this.newRelationship = Object.assign({}, this.newRelationship, {
         startDate: (this.startDate) ? moment(this.startDate).format('YYYY-MM-DD') : null,
         marriedDate: (this.marriedDate) ? moment(this.marriedDate).format('YYYY-MM-DD') : null

@@ -74,22 +74,18 @@
         b-tab(title="Main Info")
           div.row
             div.col-md-6.offset-md-3
-              label First Person's Name
-              b-form-input(v-model="relationship.person1_name")
-              label Second Person's Name
-              b-form-input(v-model="relationship.person2_name")
-              label Relationship Start Date
-              datepicker(format="MMMM dd, yyyy",:bootstrap-styling="true")
-              label Optional: Married Date
-              datepicker(format="MMMM dd, yyyy",:bootstrap-styling="true")
+              form-required-input(v-model="relationship.person1_name",label="First Person's Name")
+              form-required-input(v-model="relationship.person2_name",label="Second Person's Name")
+              datepicker(label="Relationship Start Date",v-model="relationship.relationship_started")
+              datepicker(label="Optional: Married Date",v-model="relationship.relationship_married")
               div.text-center.padding-md
                 b-button.btn-ourlove-dark(size="lg",v-on:click="updateRelationship()") Update Relationship
-        b-tab(title="Images")
+        b-tab(title="Relationship Pictures")
           div.text-center(v-if="pictureUploadLoading")
             i.fa.fa-4x.fa-spinner.fa-spin
           div(v-if="!pictureUploadLoading")
-            h2 Upload Images
-            dropzone#relationship-pictures(ref="relationship-pictures",acceptedFileTypes="image/*",:language="{dictDefaultMessage:'<br>Click or drag images here to upload them!'}",:url="'/api/v1.0/relationships/file_upload/' + id",@vdropzone-success="successfullyAddedPicture")
+            h3 Upload New Images
+            dropzone#relationship-pictures(ref="relationship-pictures",acceptedFileTypes="image/*",:clickable="true",:language="{dictDefaultMessage:'<br>Click or drag images here to upload them!'}",:url="'/api/v1.0/relationships/file_upload/' + id",@vdropzone-success="successfullyAddedPicture")
           div.row.margin-top-md
             h5.col Current Images
           div.row
@@ -158,7 +154,7 @@ const Relationship = {
       return moment.utc().diff(moment.utc(this.relationship[relationshipKey]), units)
     },
 
-    updateRelationshipTimes() {
+    updateTimerCountUps() {
       const units = ['seconds', 'minutes', 'days', 'weeks', 'months', 'years']
       const relationshipKeys = ['relationship_started', 'relationship_married']
       relationshipKeys.forEach(key => {
@@ -167,12 +163,25 @@ const Relationship = {
             this.relationshipDynamicTimes[`${key}_${unit}`] = this.getTimeDifference(key, unit)
         })
       })
+    },
+
+    async updateRelationship() {
+      try {
+        const allowedKeys   = ['person1_name', 'person2_name', 'relationship_started', 'relationship_married']
+        const dataToUpdate  = Object.keys(this.relationship).filter(key => allowedKeys.includes(key)).reduce((obj, key) => { obj[key] = this.relationship[key]; return obj }, {})
+        const response      = await RelationshipsFactory.update(this.id, dataToUpdate)
+        this.openSnackbar('Successfully updated relationship info!')
+
+      } catch(err) {
+        console.log('error updating relationship', err)
+        this.openSnackbar('There was a problem updating your relationship.', 'error')
+      }
     }
   },
 
   async created() {
-    this.updateRelationshipTimes()
-    this.mainTimingInterval = setInterval(() => this.updateRelationshipTimes(), 500)
+    this.updateTimerCountUps()
+    this.mainTimingInterval = setInterval(() => this.updateTimerCountUps(), 500)
 
     const responses = await Promise.all([
       AuthFactory.isRelationshipAdmin(this.id),
