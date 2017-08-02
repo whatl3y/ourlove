@@ -129,8 +129,9 @@
 
       setAllImages() {
         const primaryImages   = this.relationshipImages.filter(img => img.relationship_primary_image)
-        this.primaryImage     = (primaryImages.length > 0) ? primaryImages[0] : (this.relationshipImages[0] || {})
-        this.nonPrimaryImages = this.relationshipImages.filter(img => img.id !== this.primaryImage.id)
+        this.primaryImage     = (primaryImages.length > 0) ? primaryImages[0] : this.relationshipImages[0]
+        if (this.primaryImage)
+          this.nonPrimaryImages = this.relationshipImages.filter(img => img.id !== this.primaryImage.id)
       },
 
       async updateRelationship() {
