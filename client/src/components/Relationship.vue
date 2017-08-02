@@ -20,10 +20,10 @@
               a(href="javascript:void(0)",@click="updateEditMode") editing your relationship
             span  and they'll show up here!
         div.d-flex.flex-column.img-thumbnail.border-only.force-circle.w-200(v-if="primaryImage")
-          img(:class="{ portrait: primaryImage.orientation == 'portrait', landscape: primaryImage.orientation == 'landscape' }",:src="'/file/s3/' + primaryImage.medium_image_name")
+          img(:class="{ portrait: primaryImage.orientation == 'portrait', landscape: primaryImage.orientation == 'landscape' }",:src="getImageSrc(primaryImage, 'main')")
         div.d-flex.flex-row.flex-wrap.justify-content-center(v-if="nonPrimaryImages.length")
           div.img-thumbnail.border-only.force-circle.w-60.margin-sm(v-for="img in nonPrimaryImages")
-            img(:class="{ portrait: img.orientation == 'portrait', landscape: img.orientation == 'landscape' }",:src="'/file/s3/' + img.small_image_name")
+            img(:class="{ portrait: img.orientation == 'portrait', landscape: img.orientation == 'landscape' }",:src="getImageSrc(img, 'small')")
       div.col.text-center
         div Some more information!
       div.col-lg-3
@@ -55,7 +55,7 @@
             div.col-sm-6.col-md-3.margin-bottom-md(v-if="relationshipImages.length",v-for="(image, index) in relationshipImages")
               div.card
                 div.card-img-top
-                  img.img-fluid(:src="'/file/s3/' + image.small_image_name")
+                  img.img-fluid(:src="getImageSrc(image, 'small')")
                 div.card-block
                   div.card-title
                     div Image {{ index+1 }}
@@ -103,6 +103,11 @@
         return this.$root.$refs.toastr[functionTypeMap[type] || 's'](message)
       },
 
+      getImageSrc(image, prefix='main') {
+        const fileName = image[`${prefix}_image_name`] || image.main_image_name || image.medium_image_name || image.small_image_name
+        return `/file/s3/${fileName}`
+      },
+
       updateEditMode() {
         this.editMode = !this.editMode
       },
@@ -124,7 +129,7 @@
 
       setAllImages() {
         const primaryImages   = this.relationshipImages.filter(img => img.relationship_primary_image)
-        this.primaryImage     = (primaryImages.length > 0) ? primaryImages[0] : this.relationshipImages[0]
+        this.primaryImage     = (primaryImages.length > 0) ? primaryImages[0] : (this.relationshipImages[0] || {})
         this.nonPrimaryImages = this.relationshipImages.filter(img => img.id !== this.primaryImage.id)
       },
 

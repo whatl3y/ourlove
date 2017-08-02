@@ -121,7 +121,7 @@ export default async function Api(req, res) {
               return res.json({logged_in: false})
 
             const integrations  = await auth.getIntegrationsFromUserId()
-            const types         = integrations.map(i => i.type)
+            const types         = (integrations || []).map(i => i.type)
             const displayName   = (() => {
               if (integrations instanceof Array) {
                 const fb = integrations.filter(int => int.type === 'facebook')[0]

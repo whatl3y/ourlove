@@ -1,32 +1,32 @@
 <template lang="pug">
   div.form-group
     label(v-if="label",for="dp") {{ label }}
-    datepicker(name="dp",:placeholder="placeholder || 'Click here to select date...'",format="MMMM dd, yyyy",:bootstrap-styling="true",v-model="date",:value="value",@selected="dateChanged")
+    dp(name="dp",:placeholder="placeholder || 'Click here to select date...'",format="MMMM dd, yyyy",:bootstrap-styling="true",v-model="date",:value="value",@selected="dateChanged")
 </template>
 
 <script>
-import moment from 'moment'
-import Datepicker from 'vuejs-datepicker'
+  import moment from 'moment'
+  import Datepicker from 'vuejs-datepicker'
 
-export default {
-  props: ['valueKey', 'label', 'placeholder', 'value'],
-  data() {
-    return {
-      date: null
+  export default {
+    props: ['valueKey', 'label', 'placeholder', 'value'],
+    data() {
+      return {
+        date: null
+      }
+    },
+    methods: {
+      dateChanged(date) {
+        this.$emit('input', date || this.date)
+        this.$emit('changedWithKey', date || this.date, this.valueKey)
+      }
+    },
+    mounted() {
+      if (this.value)
+        this.date = moment.utc(this.value).toDate()
+    },
+    components: {
+      dp: Datepicker
     }
-  },
-  methods: {
-    dateChanged(date) {
-      this.$emit('input', date || this.date)
-      this.$emit('changedWithKey', date || this.date, this.valueKey)
-    }
-  },
-  mounted() {
-    if (this.value)
-      this.date = moment.utc(this.value).toDate()
-  },
-  components: {
-    datepicker: Datepicker
   }
-}
 </script>
