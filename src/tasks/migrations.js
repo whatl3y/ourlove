@@ -105,6 +105,7 @@ async function createRelationshipsImages(postgres) {
       relationships_id integer REFERENCES relationships,
       relationship_primary_image boolean,
       main_image_name varchar(255),
+      medium_image_name varchar(255),
       small_image_name varchar(255),
       tiny_image_name varchar(255),
       orientation varchar(255),

@@ -33,6 +33,7 @@ export default class Relationships {
       select i.* from relationships_images as i
       inner join relationships as r on r.id = i.relationships_id
       where r.path = $1
+      order by image_taken, created_at
     `, [path])
     return rows
   }
@@ -89,5 +90,28 @@ export default class Relationships {
     const queryString = queryAry.concat(['returning id']).join(' ')
     const { rows } = await this.postgres.query(queryString, paramsAry)
     return (rows[0]) ? rows[0].id : null
+  }
+
+  async updatePicture(data, id) {
+    let queryAry = ['update relationships_images set']
+    let paramsAry = []
+    let paramIndTracker = 1
+
+    Object.keys(data).forEach(key => {
+      queryAry.push(`${key} = $${paramIndTracker},`)
+      paramsAry.push(data[key])
+      paramIndTracker++
+    })
+
+    queryAry.push('updated_at = now()')
+    queryAry.push(`where id = $${paramIndTracker}`)
+    paramsAry.push(id)
+
+    const queryString = queryAry.concat(['returning id']).join(' ')
+    await this.postgres.query(queryString, paramsAry)
+  }
+
+  async deletePicture(id) {
+    await this.postgres.query(`delete from relationships_images where id = $1`, [id])
   }
 }

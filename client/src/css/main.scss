@@ -23,6 +23,20 @@ a {
   }
 }
 
+.hidden {
+  display: none !important;
+}
+
+.row.no-gutters > * {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.row.sm-gutters > * {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
 #app {
   color: $main_color;
 }
@@ -79,6 +93,18 @@ a {
   padding-right: 5px;
 }
 
+.margin-sm {
+  margin: 5px;
+}
+
+.margin-md {
+  margin: 15px;
+}
+
+.margin-lg {
+  margin: 25px;
+}
+
 .margin-left-sm {
   margin-left: 5px;
 }
@@ -103,6 +129,14 @@ a {
   margin: 50px 0px
 }
 
+.margin-bottom-sm {
+  margin-bottom: 5px;
+}
+
+.margin-bottom-md {
+  margin-bottom: 15px;
+}
+
 .margin-top-md {
   margin-top: 15px;
 }
@@ -115,13 +149,37 @@ a {
   background: $dark_color !important;
 }
 
+.img-thumbnail {
+  &.border-only {
+    padding: 0px;
+  }
+}
+
 .force-circle {
   overflow: hidden;
   border-radius: 50%;
 
+  &.w-40 {
+    width: 40px;
+    height: 40px;
+
+    img.landscape {
+      margin-left: -10px;
+    }
+  }
+
+  &.w-60 {
+    width: 60px;
+    height: 60px;
+
+    img.landscape {
+      margin-left: -15px;
+    }
+  }
+
   &.w-100 {
-    max-width: 100px;
-    max-height: 100px;
+    width: 100px;
+    height: 100px;
 
     img.landscape {
       margin-left: -25px;
@@ -129,8 +187,8 @@ a {
   }
 
   &.w-200 {
-    max-width: 200px;
-    max-height: 200px;
+    width: 200px;
+    height: 200px;
 
     img.landscape {
       margin-left: -50px;
@@ -138,8 +196,8 @@ a {
   }
 
   &.w-300 {
-    max-width: 300px;
-    max-height: 300px;
+    width: 300px;
+    height: 300px;
 
     img.landscape {
       margin-left: -75px;
@@ -147,8 +205,8 @@ a {
   }
 
   &.w-400 {
-    max-width: 400px;
-    max-height: 400px;
+    width: 400px;
+    height: 400px;
 
     img.landscape {
       margin-left: -100px;

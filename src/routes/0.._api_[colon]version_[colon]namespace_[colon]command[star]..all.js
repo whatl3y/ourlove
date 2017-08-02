@@ -46,6 +46,16 @@ export default async function Api(req, res) {
             const existingRelationshipId = await relationship.update(body.relationship)
             return res.json({id: existingRelationshipId})
 
+          case 'update_picture':
+            await relationship.updatePicture({image_taken: body.image_taken}, body.id)
+            return res.sendStatus(200)
+
+          case 'delete_picture':
+            // The 'info' piece of the URL will come across as '/<ID>', so
+            // need to strip off the initial backslash
+            await relationship.deletePicture(parseInt(info.slice(1)))
+            return res.sendStatus(200)
+
           case 'file_upload':
             if (!auth.isLoggedIn())
               return res.status(400).json({error: 'You must be logged in to upload files so we know who owns them!'})
@@ -73,17 +83,20 @@ export default async function Api(req, res) {
               imageHelpers.uploadSmallImageFromSource({jpg: true, filename: fileName, data: newImageBuffer, size: 150}),
             ])
 
-            await postgres.query(`
+            const { rows } = await postgres.query(`
               insert into relationships_images (relationships_id, main_image_name, small_image_name, tiny_image_name, orientation)
               values ($1, $2, $3, $4, $5)
+              returning id
             `, [record.id, mainS3FileName.filename, smallerS3FileName.filename, tinyS3FileName.filename, orientation])
+            const newPictureId = rows[0].id
 
             return res.json({
-              main_image_name:  mainS3FileName.filename,
-              small_image_name: smallerS3FileName.filename,
-              tiny_image_name:  tinyS3FileName.filename,
-              orientation:      orientation,
-              created_at:       new Date()
+              id:                 newPictureId,
+              main_image_name:    mainS3FileName.filename,
+              small_image_name:   smallerS3FileName.filename,
+              tiny_image_name:    tinyS3FileName.filename,
+              orientation:        orientation,
+              created_at:         new Date()
             })
 
         }

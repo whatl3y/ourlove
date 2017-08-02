@@ -29,5 +29,19 @@ export default {
       body: JSON.stringify({relationship: info})
     })
     return response.json()
+  },
+
+  async updatePictureTakenDate(pictureId, takenDate) {
+    await ourloveFetch(`/api/v1.0/relationships/update_picture`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({id: pictureId, image_taken: takenDate})
+    })
+  },
+
+  async deletePicture(pictureId) {
+    await ourloveFetch(`/api/v1.0/relationships/delete_picture/${pictureId}`, {method: 'DELETE'})
   }
 }
