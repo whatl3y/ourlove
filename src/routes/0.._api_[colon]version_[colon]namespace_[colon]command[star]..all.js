@@ -63,16 +63,24 @@ export default async function Api(req, res) {
               return res.status(400).json({error: 'You need to log in and create this relationship before uploading pictures.'})
 
             const userId = auth.getLoggedInUsersId()
-            let fileInfo, fileName, filePath, fileType
+            let fileInfo, fileName, filePath, fileType, imageType, imageTypeUid, imageUrl
             if (body.file) {
-              fileInfo = body.file
-              fileName = fileInfo.name
-              filePath = fileInfo.path
-              fileType = fileInfo.type
+              fileInfo  = body.file
+              fileName  = fileInfo.name
+              filePath  = fileInfo.path
+              fileType  = fileInfo.type
+              imageType = 'upload'
+            } else {
+              imageType     = body.image_type
+              imageTypeUid  = body.image_type_uid
+              imageUrl      = body.image_url
             }
 
             const imageHelpers      = new ImageHelpers()
-            const finalLwipImage    = await imageHelpers.rotateImagePerExifOrientation('fs', filePath)
+            const finalLwipImage    = (imageType === 'upload')
+                                      ? await imageHelpers.rotateImagePerExifOrientation('fs', filePath)
+                                      : await imageHelpers.rotateImagePerExifOrientation('url', imageUrl)
+
             const newImageBuffer    = await imageHelpers.toBuffer(finalLwipImage, 'jpg')    //ImageHelpers.getImageTypeFromFile(fileName))
             const [w, h]            = await imageHelpers.dimensions(finalLwipImage)
             const orientation       = (w / h > 1) ? 'landscape' : 'portrait'
@@ -84,10 +92,10 @@ export default async function Api(req, res) {
             ])
 
             const { rows } = await postgres.query(`
-              insert into relationships_images (relationships_id, main_image_name, small_image_name, tiny_image_name, orientation)
-              values ($1, $2, $3, $4, $5)
+              insert into relationships_images (relationships_id, image_type, image_type_uid, main_image_name, small_image_name, tiny_image_name, orientation)
+              values ($1, $2, $3, $4, $5, $6, $7)
               returning id
-            `, [record.id, mainS3FileName.filename, smallerS3FileName.filename, tinyS3FileName.filename, orientation])
+            `, [record.id, imageType, imageTypeUid, mainS3FileName.filename, smallerS3FileName.filename, tinyS3FileName.filename, orientation])
             const newPictureId = rows[0].id
 
             return res.json({

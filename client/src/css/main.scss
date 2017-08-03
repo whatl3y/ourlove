@@ -23,6 +23,10 @@ a {
   }
 }
 
+.clicker {
+  cursor: pointer;
+}
+
 .hidden {
   display: none !important;
 }
@@ -39,6 +43,15 @@ a {
 
 #app {
   color: $main_color;
+}
+
+.list-group-item.active {
+  background: $main_color !important;
+  border-color: $dark_color;
+
+  a {
+    color: white !important;
+  }
 }
 
 .gray {
@@ -147,6 +160,20 @@ a {
 
 .table-inverse {
   background: $dark_color !important;
+}
+
+.card.dark {
+  border-color: $dark_color;
+}
+
+.card {
+  &.thick {
+    border-width: 3px;
+  }
+
+  &.thick-2x {
+    border-width: 5px;
+  }
 }
 
 .img-thumbnail {

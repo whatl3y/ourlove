@@ -6,28 +6,29 @@
       div.col-2.text-right
         a.gray(href="javascript:void(0)",@click="updateEditMode")
           i.fa.fa-gear
-    h1.text-center
-      div.d-inline-block
-        div {{ relationship.person1_name }} &amp; {{ relationship.person2_name }}
-        div(v-if="relationship.relationship_started",style="font-size:10px") established {{ getEstablishedOutput(relationship.relationship_started) }}
-    hr
     div.row.sm-gutters(v-if="!editMode")
       div.col-lg-3.d-flex.flex-column.align-items-center
         div(v-if="!primaryImage")
           div
-            i You don't have any pictures yet! Add some by &nbsp;
-            u
-              a(href="javascript:void(0)",@click="updateEditMode") editing your relationship
-            span  and they'll show up here!
+            i You don't have any pictures yet!
+            span(v-if="isRelationshipAdmin") Add some by &nbsp;
+              u
+                a(href="javascript:void(0)",@click="updateEditMode") editing your relationship
+              span  and they'll show up here!
         div.d-flex.flex-column.img-thumbnail.border-only.force-circle.w-200(v-if="primaryImage")
           img(:class="{ portrait: primaryImage.orientation == 'portrait', landscape: primaryImage.orientation == 'landscape' }",:src="getImageSrc(primaryImage, 'main')")
         div.d-flex.flex-row.flex-wrap.justify-content-center(v-if="nonPrimaryImages.length")
           div.img-thumbnail.border-only.force-circle.w-60.margin-sm(v-for="img in nonPrimaryImages")
             img(:class="{ portrait: img.orientation == 'portrait', landscape: img.orientation == 'landscape' }",:src="getImageSrc(img, 'small')")
       div.col.text-center
-        div Some more information!
-      div.col-lg-3
-        h2 Timelines
+        div
+          h1.text-center
+            div.d-inline-block
+              div {{ relationship.person1_name }} &amp; {{ relationship.person2_name }}
+              div(v-if="relationship.relationship_started",style="font-size:10px") established {{ getEstablishedOutput(relationship.relationship_started) }}
+      div.col-lg-3(v-if="relationship.relationship_started || relationship.relationship_married")
+        h4.text-center
+          u Timelines
         count-up(:timestamp="relationship.relationship_started",title="Their relationship started")
         count-up(:timestamp="relationship.relationship_married",title="They got married")
     div(v-if="editMode")
@@ -35,18 +36,23 @@
         b-tab(title="Main Info")
           div.row
             div.col-md-6.offset-md-3
+              h2 Required Info
               form-required-input(v-model="relationship.person1_name",label="First Person's Name")
               form-required-input(v-model="relationship.person2_name",label="Second Person's Name")
+              hr
+              h2 Relationship Dates
               datepicker(label="Relationship Start Date",v-model="relationship.relationship_started")
               datepicker(label="Optional: Married Date",v-model="relationship.relationship_married")
               div.text-center.padding-md
+              hr
+              h2 Participant's Dates
+              datepicker(:label="relationship.person1_name + `'s Birthday`",v-model="relationship.person1_birthday")
+              datepicker(:label="relationship.person2_name + `'s Birthday`",v-model="relationship.person2_birthday")
+              hr
+              div.text-center
                 b-button.btn-ourlove-dark(size="lg",v-on:click="updateRelationship()") Update Relationship
         b-tab(title="Relationship Pictures")
-          div.text-center(v-if="pictureUploadLoading")
-            i.fa.fa-4x.fa-spinner.fa-spin
-          div(v-if="!pictureUploadLoading")
-            h3 Upload New Images
-            dropzone#relationship-pictures(ref="relationship-pictures",acceptedFileTypes="image/*",:clickable="true",:language="{dictDefaultMessage:'<br>Click or drag images here to upload them!'}",:url="'/api/v1.0/relationships/file_upload/' + id",@vdropzone-success="successfullyAddedPicture")
+          picture-uploader(:id="id",@success="successfullyAddedPicture")
           div.row.margin-top-md
             h5.col Current Images
           div.row
@@ -68,12 +74,13 @@
                     - //b-button.margin-right-sm(size="sm",@click="updatePicture(image)") Update
                     b-button(size="sm",variant="danger",@click="deletePicture(image.id)") Delete
         b-tab(title="Milestones")
-        - //b-tab(title="Reminders")
+        b-tab(title="Reminders")
         - //b-tab(title="Diary")
 </template>
 
 <script>
   import moment from 'moment'
+  import PictureUploader from './PictureUploader'
   import AuthFactory from '../factories/Auth'
   import RelationshipsFactory from '../factories/Relationships'
 
@@ -89,8 +96,7 @@
         editTabIndex:             0,
         relationshipImages:       [],
         primaryImage:             null,
-        nonPrimaryImages:         [],
-        pictureUploadLoading:     false
+        nonPrimaryImages:         []
       }
     },
 
@@ -113,10 +119,9 @@
       },
 
       successfullyAddedPicture(file, response) {
-        this.$refs['relationship-pictures'].removeAllFiles()
         this.relationshipImages.push(response)
         this.openSnackbar('Successfully added picture!')
-        this.pictureUploadLoading = false
+        this.setAllImages()
       },
 
       getEstablishedOutput(timestamp) {
@@ -136,7 +141,7 @@
 
       async updateRelationship() {
         try {
-          const allowedKeys   = ['person1_name', 'person2_name', 'relationship_started', 'relationship_married']
+          const allowedKeys   = ['person1_name', 'person2_name', 'person1_birthday', 'person2_birthday', 'relationship_started', 'relationship_married']
           const dataToUpdate  = Object.keys(this.relationship).filter(key => allowedKeys.includes(key)).reduce((obj, key) => { obj[key] = this.relationship[key]; return obj }, {})
           const response      = await RelationshipsFactory.update(this.id, dataToUpdate)
           this.openSnackbar('Successfully updated relationship info!')
@@ -183,6 +188,10 @@
       this.isRelationshipAdmin  = responses[0]
       this.relationshipImages   = responses[1]
       this.setAllImages()
+    },
+
+    components: {
+      'picture-uploader': PictureUploader
     }
   }
 </script>

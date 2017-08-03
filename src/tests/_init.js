@@ -42,7 +42,11 @@ async function truncateTables(postgres) {
     truncate  users_relationships_map,
               users_oauth_integrations,
               relationships_images,
+              relationship_milestones,
+              relationship_reminders,
               relationships,
+              relationship_tags_map,
+              tags,
               users;
   `)
 }

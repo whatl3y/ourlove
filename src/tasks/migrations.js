@@ -16,10 +16,17 @@ const postgres = new PostgresClient(postgres_url, {max: 1})
       createRelationships(postgres),
       createRelationshipsIndexes(postgres),
       createUsersRelationshipsMap(postgres),
+      createUsersRelationshipsMapIndexes(postgres),
       createRelationshipsImages(postgres),
+      createRelationshipsImagesIndexes(postgres),
       createRelationshipMilestones(postgres),
+      createRelationshipMilestonesIndexes(postgres),
+      createRelationshipReminders(postgres),
+      createRelationshipRemindersIndexes(postgres),
       createTags(postgres),
-      createRelationshipTagsMap(postgres)
+      createTagsIndexes(postgres),
+      createRelationshipTagsMap(postgres),
+      createRelationshipTagsMapIndexes(postgres)
     ])
 
     log.info("Successfully ran DB migrations!")
@@ -63,6 +70,7 @@ async function createUsersOAuthIntegrations(postgres) {
 }
 
 async function createUsersOAuthIntegrationsIndexes(postgres) {
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS users_oauth_integrations_user_id on users_oauth_integrations (user_id)`)
   await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS users_oauth_integrations_unique_id on users_oauth_integrations (unique_id)`)
 }
 
@@ -73,7 +81,9 @@ async function createRelationships(postgres) {
       created_user_id integer REFERENCES users,
       path varchar(255),
       person1_name varchar(255),
+      person1_birthday date,
       person2_name varchar(255),
+      person2_birthday date,
       relationship_started timestamp(6) without time zone,
       relationship_married timestamp(6) without time zone,
       created_at timestamp(6) without time zone NOT NULL DEFAULT now(),
@@ -83,6 +93,7 @@ async function createRelationships(postgres) {
 }
 
 async function createRelationshipsIndexes(postgres) {
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationships_created_user_id on relationships (created_user_id)`)
   await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationships_path on relationships (path)`)
 }
 
@@ -98,11 +109,18 @@ async function createUsersRelationshipsMap(postgres) {
   `)
 }
 
+async function createUsersRelationshipsMapIndexes(postgres) {
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS users_relationships_map_user_id on users_relationships_map (user_id)`)
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS users_relationships_map_relationships_id on users_relationships_map (relationships_id)`)
+}
+
 async function createRelationshipsImages(postgres) {
   await postgres.query(`
     CREATE TABLE IF NOT EXISTS relationships_images (
       id serial PRIMARY KEY,
       relationships_id integer REFERENCES relationships,
+      image_type varchar(255),
+      image_type_uid varchar(255),
       relationship_primary_image boolean,
       main_image_name varchar(255),
       medium_image_name varchar(255),
@@ -116,18 +134,52 @@ async function createRelationshipsImages(postgres) {
   `)
 }
 
+async function createRelationshipsImagesIndexes(postgres) {
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationships_images_relationships_id on relationships_images (relationships_id)`)
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationships_images_created_at on relationships_images (created_at)`)
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationships_images_image_taken on relationships_images (image_taken)`)
+}
+
 async function createRelationshipMilestones(postgres) {
   await postgres.query(`
     CREATE TABLE IF NOT EXISTS relationship_milestones (
       id serial PRIMARY KEY,
       relationships_id integer REFERENCES relationships,
+      image_id integer REFERENCES relationships_images,
       milestone_time timestamp,
-      name varchar(255),
+      title varchar(255),
+      subtitle varchar(255),
       description text,
       created_at timestamp(6) without time zone NOT NULL DEFAULT now(),
       updated_at timestamp(6) without time zone NOT NULL DEFAULT now()
     );
   `)
+}
+
+async function createRelationshipMilestonesIndexes(postgres) {
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationship_milestones_relationships_id on relationship_milestones (relationships_id)`)
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationship_milestones_image_id on relationship_milestones (image_id)`)
+}
+
+async function createRelationshipReminders(postgres) {
+  await postgres.query(`
+    CREATE TABLE IF NOT EXISTS relationship_reminders (
+      id serial PRIMARY KEY,
+      relationships_id integer REFERENCES relationships,
+      milestone_id integer REFERENCES relationship_milestones,
+      is_active boolean,
+      reminder_type varchar(255),
+      days_before_milestone_to_remind integer,
+      created_at timestamp(6) without time zone NOT NULL DEFAULT now(),
+      updated_at timestamp(6) without time zone NOT NULL DEFAULT now()
+    );
+  `)
+}
+
+async function createRelationshipRemindersIndexes(postgres) {
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationship_reminders_relationships_id on relationship_reminders (relationships_id)`)
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationship_reminders_milestone_id on relationship_reminders (milestone_id)`)
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationship_reminders_is_active on relationship_reminders (is_active)`)
 }
 
 async function createTags(postgres) {
@@ -141,6 +193,10 @@ async function createTags(postgres) {
   `)
 }
 
+async function createTagsIndexes(postgres) {
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS tags_tag_name on tags (tag_name)`)
+}
+
 async function createRelationshipTagsMap(postgres) {
   await postgres.query(`
     CREATE TABLE IF NOT EXISTS relationship_tags_map (
@@ -151,4 +207,9 @@ async function createRelationshipTagsMap(postgres) {
       updated_at timestamp(6) without time zone NOT NULL DEFAULT now()
     );
   `)
+}
+
+async function createRelationshipTagsMapIndexes(postgres) {
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationship_tags_map_tags_id on relationship_tags_map (tags_id)`)
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationship_tags_map_relationships_id on relationship_tags_map (relationships_id)`)
 }

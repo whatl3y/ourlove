@@ -1,6 +1,8 @@
-import async_parallel from 'async/parallel'
 import request from 'request'
+import async_parallel from 'async/parallel'
 import ApiHandler from './ApiHandler'
+
+const NOOP = () => {}
 
 export default class FacebookGraphApi extends ApiHandler {
   constructor(...args) {
@@ -315,21 +317,22 @@ export default class FacebookGraphApi extends ApiHandler {
 
   responseFunction(...args) {
     let pagingType = null
-    let callback = () => {}
-    let resolve = () => {}
-    let reject = () => {}
+    let callback = NOOP
+    let resolve = NOOP
+    let reject = NOOP
     switch(args.length) {
       case 3:
         pagingType = args[0]
         resolve = args[1]
         reject = args[2]
+        break
       case 2:
         pagingType = args[0]
         callback = args[1]
         break
       case 1:
         callback = args[0]
-        break;
+        break
     }
 
     return (err, httpResponse, body) => {

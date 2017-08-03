@@ -38,17 +38,13 @@ const TopNav = {
   },
 
   methods: {
-    async getLoggedInAndIntegrations() {
-      return await AuthFactory.getIntegrations()
-    },
-
     hasIntegration(type) {
       return !!this.integrations[type]
     }
   },
 
   async created() {
-    const response = await this.getLoggedInAndIntegrations()
+    const response = await AuthFactory.getIntegrations()
     this.isLoggedIn = response.logged_in
     this.displayName = response.display_name
     if (response.integrations instanceof Array)
