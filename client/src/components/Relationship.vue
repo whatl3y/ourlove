@@ -120,7 +120,11 @@
       },
 
       successfullyAddedPicture(file, response) {
-        this.relationshipImages.push(response)
+        console.log('res', response)
+        if (response instanceof Array)
+          this.relationshipImages = this.relationshipImages.concat(response)
+        else
+          this.relationshipImages.push(response)
         this.openSnackbar('Successfully added picture!')
         this.setAllImages()
       },

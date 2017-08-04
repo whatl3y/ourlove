@@ -69,17 +69,17 @@ export default async function Api(req, res) {
                 if (req.session.user.facebook.access_token) {
                   const fb = new FacebookGraphApi(req.session.user.facebook.access_token)
 
+                  const taggedPaging    = (body.pageInfo && body.pageInfo.tagged_paging) ? body.pageInfo.tagged_paging : null
+                  const uploadedPaging  = (body.pageInfo && body.pageInfo.uploaded_paging) ? body.pageInfo.uploaded_paging : null
+
                   let promises = []
-                  promises.push(fb.photos('me', 'tagged'))
-                  promises.push(fb.photos('me', 'uploaded'))
-                  // if (taggedPaging !== 'NONE') promises.push(fb.photos('me', 'tagged', taggedPaging))
-                  // if (uploadedPaging !== 'NONE') promises.push(fb.photos('me', 'uploaded', uploadedPaging))
+                  promises.push(fb.photos('me', 'tagged', taggedPaging))
+                  promises.push(fb.photos('me', 'uploaded', uploadedPaging))
 
                   const results = await Promise.all(promises)
-                  console.log('results', results)
                   const photos = {data: results.map(r => r.body).reduce((acc, val) => acc.concat(val.data), [])}
                   const paging = {tagged_paging: results[0].paging, uploaded_paging: results[1].paging}
-                  return res.json({images: photos, next: paging})
+                  return res.json({images: photos, paging: paging})
                 }
                 return res.send(401).json({error: `You haven't authenticated with Facebook yet.`})
               case 'instagram':
@@ -87,7 +87,7 @@ export default async function Api(req, res) {
                   const ig = new InstagramApi(req.session.user.instagram.access_token)
                   // await ig.userMedia('self', paging)
                   const response = await ig.userMedia()
-                  return res.json({images: response.body, next: response.pagination})
+                  return res.json({images: response.body, paging: response.paging})
                 }
                 return res.send(401).json({error: `You haven't authenticated with Instagram yet.`})
               case 'pinterest':
@@ -136,50 +136,72 @@ export default async function Api(req, res) {
             if (!record)
               return res.status(400).json({error: 'You need to log in and create this relationship before uploading pictures.'})
 
+            const imageHelpers = new ImageHelpers()
+
+            const convertImageUrl = obj => {
+              const type = obj.type
+              switch (type) {
+                case 'facebook':
+                  return obj.images[0].source
+                case 'instagram':
+                  return obj.images['standard_resolution'].url
+              }
+            }
+
+            const uploadFiles = async (imageType, imageTypeUid, imageUrlorFilePath, fileName=null) => {
+              const imageFileTypes    = ['.gif', '.jpg', '.jpeg', '.png']
+              fileName                = fileName || imageUrlorFilePath.split('/').filter(piece => imageFileTypes.indexOf(piece) > -1)[0] || `uploaded_picture_${imageType}.jpg`
+              const finalLwipImage    = (imageType === 'upload')
+                                        ? await imageHelpers.rotateImagePerExifOrientation('fs', imageUrlorFilePath) //filePath)
+                                        : await imageHelpers.rotateImagePerExifOrientation('url', imageUrlorFilePath) //imageUrl)
+
+              const newImageBuffer    = await imageHelpers.toBuffer(finalLwipImage, 'jpg')    //ImageHelpers.getImageTypeFromFile(fileName))
+              const [w, h]            = await imageHelpers.dimensions(finalLwipImage)
+              const orientation       = (w / h > 1) ? 'landscape' : 'portrait'
+
+              const [mainS3FileName, smallerS3FileName, tinyS3FileName] = await Promise.all([
+                s3.writeFile({filename: fileName, data: newImageBuffer}),
+                imageHelpers.uploadSmallImageFromSource({jpg: true, filename: fileName, data: newImageBuffer, size: 400}),
+                imageHelpers.uploadSmallImageFromSource({jpg: true, filename: fileName, data: newImageBuffer, size: 150}),
+              ])
+
+              const { rows } = await postgres.query(`
+                insert into relationships_images (relationships_id, image_type, image_type_uid, main_image_name, small_image_name, tiny_image_name, orientation)
+                values ($1, $2, $3, $4, $5, $6, $7)
+                returning id
+              `, [record.id, imageType, imageTypeUid, mainS3FileName.filename, smallerS3FileName.filename, tinyS3FileName.filename, orientation])
+              const newPictureId = rows[0].id
+
+              return {
+                id:                 newPictureId,
+                main_image_name:    mainS3FileName.filename,
+                small_image_name:   smallerS3FileName.filename,
+                tiny_image_name:    tinyS3FileName.filename,
+                orientation:        orientation,
+                created_at:         new Date()
+              }
+            }
+
             const userId = auth.getLoggedInUsersId()
-            let fileInfo, fileName, filePath, fileType, imageType, imageTypeUid, imageUrl
+            let pictures, fileInfo, fileName, filePath, fileType, imageType, imageTypeUid, imageUrl
             if (body.file) {
               fileInfo  = body.file
               fileName  = fileInfo.name
               filePath  = fileInfo.path
               fileType  = fileInfo.type
               imageType = 'upload'
+              pictures = await uploadFiles(imageType, null, filePath, fileName)
+
             } else {
-              imageType     = body.image_type
-              imageTypeUid  = body.image_type_uid
-              imageUrl      = body.image_url
+              pictures = await Promise.all(
+                body.images.map(async img => {
+                  const url = convertImageUrl(img)
+                  return await uploadFiles(img.type, img.id, url)
+                })
+              )
             }
 
-            const imageHelpers      = new ImageHelpers()
-            const finalLwipImage    = (imageType === 'upload')
-                                      ? await imageHelpers.rotateImagePerExifOrientation('fs', filePath)
-                                      : await imageHelpers.rotateImagePerExifOrientation('url', imageUrl)
-
-            const newImageBuffer    = await imageHelpers.toBuffer(finalLwipImage, 'jpg')    //ImageHelpers.getImageTypeFromFile(fileName))
-            const [w, h]            = await imageHelpers.dimensions(finalLwipImage)
-            const orientation       = (w / h > 1) ? 'landscape' : 'portrait'
-
-            const [mainS3FileName, smallerS3FileName, tinyS3FileName] = await Promise.all([
-              s3.writeFile({filename: fileName, data: newImageBuffer}),
-              imageHelpers.uploadSmallImageFromSource({jpg: true, filename: fileName, data: newImageBuffer, size: 400}),
-              imageHelpers.uploadSmallImageFromSource({jpg: true, filename: fileName, data: newImageBuffer, size: 150}),
-            ])
-
-            const { rows } = await postgres.query(`
-              insert into relationships_images (relationships_id, image_type, image_type_uid, main_image_name, small_image_name, tiny_image_name, orientation)
-              values ($1, $2, $3, $4, $5, $6, $7)
-              returning id
-            `, [record.id, imageType, imageTypeUid, mainS3FileName.filename, smallerS3FileName.filename, tinyS3FileName.filename, orientation])
-            const newPictureId = rows[0].id
-
-            return res.json({
-              id:                 newPictureId,
-              main_image_name:    mainS3FileName.filename,
-              small_image_name:   smallerS3FileName.filename,
-              tiny_image_name:    tinyS3FileName.filename,
-              orientation:        orientation,
-              created_at:         new Date()
-            })
+            return res.json(pictures)
 
         }
         break

@@ -34,9 +34,7 @@ export default {
   async updatePictureTakenDate(pictureId, takenDate) {
     await ourloveFetch(`/api/v1.0/relationships/update_picture`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({id: pictureId, image_taken: takenDate})
     })
   },
