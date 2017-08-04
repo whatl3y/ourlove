@@ -7,7 +7,7 @@
         a.gray(href="javascript:void(0)",@click="updateEditMode")
           i.fa.fa-gear
     div.row.sm-gutters(v-if="!editMode")
-      div.col-lg-3.d-flex.flex-column.align-items-center
+      div.col-lg-4.d-flex.flex-column.align-items-center
         div(v-if="!primaryImage")
           div
             i You don't have any pictures yet!
@@ -15,22 +15,21 @@
               u
                 a(href="javascript:void(0)",@click="updateEditMode") editing your relationship
               span  and they'll show up here!
-        div.d-flex.flex-column.img-thumbnail.border-only.force-circle.w-200(v-if="primaryImage")
+        div.d-flex.flex-column.img-thumbnail.border-only.dark-border.force-circle.w-200(v-if="primaryImage")
           img(:class="{ portrait: primaryImage.orientation == 'portrait', landscape: primaryImage.orientation == 'landscape' }",:src="getImageSrc(primaryImage, 'main')")
-        div.d-flex.flex-row.flex-wrap.justify-content-center(v-if="nonPrimaryImages.length")
-          div.img-thumbnail.border-only.force-circle.w-60.margin-sm(v-for="img in nonPrimaryImages")
-            img(:class="{ portrait: img.orientation == 'portrait', landscape: img.orientation == 'landscape' }",:src="getImageSrc(img, 'small')")
-      div.col.text-center
         div
           h1.text-center
             div.d-inline-block
               div {{ relationship.person1_name }} &amp; {{ relationship.person2_name }}
               div(v-if="relationship.relationship_started",style="font-size:10px") established {{ getEstablishedOutput(relationship.relationship_started) }}
-      div.col-lg-3(v-if="relationship.relationship_started || relationship.relationship_married")
-        h4.text-center
-          u Timelines
-        count-up(:timestamp="relationship.relationship_started",title="Their relationship started")
-        count-up(:timestamp="relationship.relationship_married",title="They got married")
+        div.d-flex.flex-row.flex-wrap.justify-content-center(v-if="nonPrimaryImages.length")
+          div.img-thumbnail.border-only.dark-border.force-circle.w-60.margin-sm(v-for="img in nonPrimaryImages")
+            img(:class="{ portrait: img.orientation == 'portrait', landscape: img.orientation == 'landscape' }",:src="getImageSrc(img, 'small')")
+      hr.hidden-lg-up.col-12
+      div.col(v-if="relationship.relationship_started || relationship.relationship_married")
+        count-up-hor(:timestamp="relationship.relationship_started",title="Their relationship started")
+        hr(v-if="relationship.relationship_married")
+        count-up(minimal,:timestamp="relationship.relationship_married",title="They got married")
     div(v-if="editMode")
       b-tabs(card,ref="edit-tabs",v-model="editTabIndex")
         b-tab(title="Main Info")
@@ -80,6 +79,8 @@
 
 <script>
   import moment from 'moment'
+  import CountUpHorizontal from './CountUpHorizontal'
+  import CountUpTable from './CountUpTable'
   import PictureUploader from './PictureUploader'
   import AuthFactory from '../factories/Auth'
   import RelationshipsFactory from '../factories/Relationships'
@@ -191,6 +192,8 @@
     },
 
     components: {
+      'count-up': CountUpTable,
+      'count-up-hor': CountUpHorizontal,
       'picture-uploader': PictureUploader
     }
   }

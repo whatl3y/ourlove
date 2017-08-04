@@ -11,7 +11,6 @@ import router from './router'
 import 'whatwg-fetch'
 import Toastr from 'vue-toastr'
 import Dropzone from 'vue2-dropzone'
-import CountUp from './components/CountUp'
 import Datepicker from './components/Datepicker'
 import FormRequiredInput from './components/FormRequiredInput'
 import ZigzagTimeline from './components/ZigzagTimeline'
@@ -31,7 +30,6 @@ if ('addEventListener' in document)
 
 Vue.use(BootstrapVue)
 Vue.component('vue-toastr', Toastr)
-Vue.component('CountUp', CountUp)
 Vue.component('datepicker', Datepicker)
 Vue.component('Dropzone', Dropzone)
 Vue.component('FormRequiredInput', FormRequiredInput)

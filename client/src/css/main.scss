@@ -177,6 +177,10 @@ a {
 }
 
 .img-thumbnail {
+  &.dark-border {
+    border-color: $dark_color;
+  }
+
   &.border-only {
     padding: 0px;
   }

@@ -75,14 +75,26 @@ export default class Auth {
     return rows.length > 0
   }
 
-  login(userObject=null) {
+  async login(userObject=null) {
     if (this._session) {
       this._session.user = this._session.user || {}
       userObject = userObject || this.user || this._session.user
       if (userObject) {
+        if (userObject.id) {
+          // Add all known integrations to the session that we're
+          // aware of for the user
+          const integrations = await this.getIntegrationsFromUserId(userObject.id)
+          if (integrations.length > 0) {
+            let intObj = {}
+            integrations.forEach(int => intObj[int.type] = int)
+            userObject = Object.assign(userObject, intObj)
+          }
+        }
+
         for (var _key in userObject) {
           this._session.user[_key] = userObject[_key]
         }
+
         this._session.save()
         return true
       }

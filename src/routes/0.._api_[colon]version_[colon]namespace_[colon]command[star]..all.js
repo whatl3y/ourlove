@@ -3,6 +3,8 @@ import bunyan from 'bunyan'
 import PostgresClient from '../libs/PostgresClient'
 import Auth from '../libs/Auth'
 import Aws from '../libs/Aws'
+import FacebookGraphApi from '../libs/FacebookGraphApi'
+import InstagramApi from '../libs/InstagramApi'
 import ImageHelpers from '../libs/ImageHelpers'
 import Relationships from '../libs/Relationships'
 import config from '../config'
@@ -22,6 +24,78 @@ export default async function Api(req, res) {
     const info      = req.params[0]
 
     switch(namespace) {
+      case 'auth':
+        switch(command) {
+          case 'logged_in':
+            return res.json(auth.isLoggedIn())
+
+          case 'relationship_admin':
+            const isAdmin = await auth.isUserAdminOfRelationship(info)
+            return res.json(isAdmin)
+
+          case 'set_return_to':
+            req.session.returnTo = info
+            req.session.save()
+            return res.sendStatus(200)
+
+          case 'integrations':
+            if (!auth.isLoggedIn())
+              return res.json({logged_in: false})
+
+            const integrations  = await auth.getIntegrationsFromUserId()
+            const types         = (integrations || []).map(i => i.type)
+            const displayName   = (() => {
+              if (integrations instanceof Array) {
+                const fb = integrations.filter(int => int.type === 'facebook')[0]
+                const ig = integrations.filter(int => int.type === 'instagram')[0]
+                const pi = integrations.filter(int => int.type === 'pinterest')[0]
+                if (fb) return fb.first_name
+                if (ig) return ig.first_name
+                if (pi) return pi.first_name
+              }
+              return null
+            })()
+            return res.json({logged_in: true, display_name: displayName, integrations: types})
+        }
+        break
+
+      case 'integrations':
+        switch(command) {
+          case 'get_images':
+            const provider = info.slice(1)
+
+            switch (provider) {
+              case 'facebook':
+                if (req.session.user.facebook.access_token) {
+                  const fb = new FacebookGraphApi(req.session.user.facebook.access_token)
+
+                  let promises = []
+                  promises.push(fb.photos('me', 'tagged'))
+                  promises.push(fb.photos('me', 'uploaded'))
+                  // if (taggedPaging !== 'NONE') promises.push(fb.photos('me', 'tagged', taggedPaging))
+                  // if (uploadedPaging !== 'NONE') promises.push(fb.photos('me', 'uploaded', uploadedPaging))
+
+                  const results = await Promise.all(promises)
+                  console.log('results', results)
+                  const photos = {data: results.map(r => r.body).reduce((acc, val) => acc.concat(val.data), [])}
+                  const paging = {tagged_paging: results[0].paging, uploaded_paging: results[1].paging}
+                  return res.json({images: photos, next: paging})
+                }
+                return res.send(401).json({error: `You haven't authenticated with Facebook yet.`})
+              case 'instagram':
+                if (req.session.user.instagram.access_token) {
+                  const ig = new InstagramApi(req.session.user.instagram.access_token)
+                  // await ig.userMedia('self', paging)
+                  const response = await ig.userMedia()
+                  return res.json({images: response.body, next: response.pagination})
+                }
+                return res.send(401).json({error: `You haven't authenticated with Instagram yet.`})
+              case 'pinterest':
+                return res.sendStatus(404)
+            }
+        }
+        break
+
       case 'relationships':
         const relationship  = new Relationships({postgres: postgres, path: info})
         const record        = await relationship.getByPath()
@@ -107,41 +181,6 @@ export default async function Api(req, res) {
               created_at:         new Date()
             })
 
-        }
-        break
-
-      case 'auth':
-        switch(command) {
-          case 'logged_in':
-            return res.json(auth.isLoggedIn())
-
-          case 'relationship_admin':
-            const isAdmin = await auth.isUserAdminOfRelationship(info)
-            return res.json(isAdmin)
-
-          case 'set_return_to':
-            req.session.returnTo = info
-            req.session.save()
-            return res.sendStatus(200)
-
-          case 'integrations':
-            if (!auth.isLoggedIn())
-              return res.json({logged_in: false})
-
-            const integrations  = await auth.getIntegrationsFromUserId()
-            const types         = (integrations || []).map(i => i.type)
-            const displayName   = (() => {
-              if (integrations instanceof Array) {
-                const fb = integrations.filter(int => int.type === 'facebook')[0]
-                const ig = integrations.filter(int => int.type === 'instagram')[0]
-                const pi = integrations.filter(int => int.type === 'pinterest')[0]
-                if (fb) return fb.first_name
-                if (ig) return ig.first_name
-                if (pi) return pi.first_name
-              }
-              return null
-            })()
-            return res.json({logged_in: true, display_name: displayName, integrations: types})
         }
         break
     }

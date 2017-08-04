@@ -55,8 +55,14 @@
         return this.activeTab == type
       },
 
-      setActiveTab(type) {
+      async setActiveTab(type) {
         this.activeTab = type
+
+        const integrationTypes = ['facebook', 'instagram', 'pinterest']
+        if (integrationTypes.indexOf(this.activeTab) > -1) {
+          const response = await IntegrationsFactory.getImages(this.activeTab)
+          console.log('res', response)
+        }
       },
 
       successfullyAddedPicture(file, response) {

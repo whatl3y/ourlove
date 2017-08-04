@@ -1,8 +1,10 @@
 <template lang="pug">
   div.text-center(v-if="timestamp")
-    div(v-if="title") {{ title }}
-    div(style="font-size:12px") {{ getFormattedDate(timestamp) }}
-    table.table.table-inverse.thin
+    h3(v-if="title") {{ title }}
+    div.gray.lead(style="font-size:12px") {{ getFormattedDate(timestamp) }}
+    div.item(v-if="minimal")
+      small {{ fullCountdown }}
+    table.table.table-inverse.thin(v-if="!minimal")
       tbody.text-center
         tr
           td {{ dynamicTimes.seconds }} seconds ago
@@ -34,7 +36,7 @@
   import TimeHelpers from '../factories/TimeHelpers'
 
   export default {
-    props: ['timestamp', 'title'],
+    props: ['minimal', 'timestamp', 'title'],
     data() {
       return {
         fullCountdown: null,
@@ -94,5 +96,9 @@
 
   .table.two-cells td {
     width: 50%;
+  }
+
+  .item {
+    color: #740037;
   }
 </style>
