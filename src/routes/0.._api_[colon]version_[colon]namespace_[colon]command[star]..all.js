@@ -108,6 +108,10 @@ export default async function Api(req, res) {
             const images = await relationship.getImages()
             return res.json(images)
 
+          case 'get_milestones':
+            const milestones = await relationship.getMilestones()
+            return res.json(milestones)
+
           case 'create':
             if (record)
               return res.json({error: 'Unfortunately this relationship path has already been created.'}).status(400)
@@ -130,6 +134,21 @@ export default async function Api(req, res) {
             await relationship.deletePicture(parseInt(info.slice(1)))
             return res.sendStatus(200)
 
+          case 'update_milestone':
+            const newMilestone  = body.milestone
+            let milestoneId     = newMilestone.id
+            let relationshipId  = null
+            if (!milestoneId) relationshipId = await relationship.getByPath()
+
+            milestoneId = await relationship.updateMilestone(newMilestone, milestoneId, relationshipId)
+            return res.json({id: milestoneId})
+
+          case 'delete_milestone':
+            // The 'info' piece of the URL will come across as '/<ID>', so
+            // need to strip off the initial backslash
+            await relationship.deleteMilestone(parseInt(info.slice(1)))
+            return res.sendStatus(200)
+
           case 'file_upload':
             if (!auth.isLoggedIn())
               return res.status(400).json({error: 'You must be logged in to upload files so we know who owns them!'})
@@ -150,7 +169,8 @@ export default async function Api(req, res) {
 
             const uploadFiles = async (imageType, imageTypeUid, imageUrlorFilePath, fileName=null) => {
               const imageFileTypes    = ['.gif', '.jpg', '.jpeg', '.png']
-              fileName                = fileName || imageUrlorFilePath.split('/').filter(piece => imageFileTypes.indexOf(piece) > -1)[0] || `uploaded_picture_${imageType}.jpg`
+              // const fileNameFromUrl   = imageUrlorFilePath.split('/').filter(piece => imageFileTypes.filter(ext => piece.indexOf(ext) > -1).length > 0)[0] + '.jpg'
+              fileName                = fileName  || `uploaded_picture_${imageType}.jpg`
               const finalLwipImage    = (imageType === 'upload')
                                         ? await imageHelpers.rotateImagePerExifOrientation('fs', imageUrlorFilePath) //filePath)
                                         : await imageHelpers.rotateImagePerExifOrientation('url', imageUrlorFilePath) //imageUrl)

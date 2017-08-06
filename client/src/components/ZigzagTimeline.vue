@@ -4,11 +4,13 @@
       ul.timeline
         li(v-for="(event, index) in events",:class="{'timeline-inverted': isInverted(index)}")
           div.timeline-image
-            img.img-fluid.rounded-circle(:src="'/file/s3/' + event.imageSrc")
+            div.force-circle.w-160
+              img(:class="{ portrait: getLandscapeOrPortrait('portrait', event.orientation), landscape: getLandscapeOrPortrait('landscape', event.orientation) }",:src="'/file/s3/' + event.imageSrc")
+            - //img.img-fluid.rounded-circle(:src="'/file/s3/' + event.imageSrc")
           div.timeline-panel
             div.timeline-heading
               h3(v-if="event.title") {{ event.title }}
-              h5(v-if="event.timestamp") {{ formattedTimestamp(event.timestamp) }}
+              h4.subheading(v-if="event.timestamp") {{ formattedTimestamp(event.timestamp) }}
               h4.subheading(v-if="event.subtitle") {{ event.subtitle }}
             div.timeline-body(v-if="event.body")
               p.text-muted {{ event.body }}
@@ -25,6 +27,9 @@
     name: 'home',
     props: ['events', 'format'],
     methods: {
+      getLandscapeOrPortrait(typeToConfirm, orientation='portrait') {
+        return typeToConfirm == orientation
+      },
       formattedTimestamp(string) {
         return moment(string).format(this.format || 'MMM Do, YYYY')
       },
@@ -105,8 +110,8 @@
     border-radius:    100%;
     background-color: #740037;
     box-shadow:       0 0 5px #b72168;
-    width:            200px;
-    height:           200px;
+    width:            174px;
+    height:           174px;
     margin-left:      -100px;
   }
 
@@ -240,7 +245,7 @@
     .timeline > li:nth-child(odd) {
       margin-bottom:  0px;
       min-height:     0px;
-      max-height:     200px;
+      max-height:     240px;
       height:         auto;
       left:           0px;
     }
@@ -295,8 +300,8 @@
 
     .timeline > li .timeline-image {
       position:       static;
-      width:          150px;
-      height:         150px;
+      width:          174px;
+      height:         174px;
       margin-bottom:  0px;
     }
 

@@ -2,7 +2,7 @@
   div.col.valid-relationship-container
     div.row(v-if="isRelationshipAdmin")
       div.col
-        i(v-if="editMode",@click="updateEditMode") Edit Mode
+        strong(v-show="editMode",@click="updateEditMode") Relationship Edit Mode
       div.col-2.text-right
         a.gray(href="javascript:void(0)",@click="updateEditMode")
           i.fa.fa-gear
@@ -30,6 +30,10 @@
         count-up-hor(:timestamp="relationship.relationship_started",title="Their relationship started")
         hr(v-if="relationship.relationship_married")
         count-up(minimal,:timestamp="relationship.relationship_married",title="They got married")
+      div.col-12
+        hr
+        h1 Milestones
+        timeline(:events="formattedRelationshipMilestones")
     div(v-if="editMode")
       b-tabs(card,ref="edit-tabs",v-model="editTabIndex")
         b-tab(title="Main Info")
@@ -72,7 +76,8 @@
                   div.text-center
                     - //b-button.margin-right-sm(size="sm",@click="updatePicture(image)") Update
                     b-button(size="sm",variant="danger",@click="deletePicture(image.id)") Delete
-        b-tab(title="Milestones")
+        b-tab(title="Milestones &amp; Events")
+          milestone-editor(:id="id",:milestones="relationshipMilestones",:images="relationshipImages",@successDelete="milestoneDeleted")
         b-tab(title="Reminders")
         - //b-tab(title="Diary")
 </template>
@@ -81,6 +86,7 @@
   import moment from 'moment'
   import CountUpHorizontal from './CountUpHorizontal'
   import CountUpTable from './CountUpTable'
+  import MilestoneEditor from './MilestoneEditor'
   import PictureUploader from './PictureUploader'
   import AuthFactory from '../factories/Auth'
   import RelationshipsFactory from '../factories/Relationships'
@@ -97,7 +103,9 @@
         editTabIndex:             0,
         relationshipImages:       [],
         primaryImage:             null,
-        nonPrimaryImages:         []
+        nonPrimaryImages:         [],
+        formattedRelationshipMilestones: [],
+        relationshipMilestones:   []
       }
     },
 
@@ -144,6 +152,19 @@
           this.nonPrimaryImages = this.relationshipImages.filter(img => img.id !== this.primaryImage.id)
       },
 
+      setMilestones() {
+        this.formattedRelationshipMilestones = this.relationshipMilestones.map(milestone => {
+          return {
+            title:        milestone.title,
+            subtitle:     milestone.subtitle,
+            timestamp:    milestone.milestone_time,
+            body:         milestone.description,
+            imageSrc:     milestone.main_image_name,
+            orientation:  milestone.orientation
+          }
+        })
+      },
+
       async updateRelationship() {
         try {
           const allowedKeys   = ['person1_name', 'person2_name', 'person1_birthday', 'person2_birthday', 'relationship_started', 'relationship_married']
@@ -181,23 +202,33 @@
           console.log('error deleteing picture', err)
           this.openSnackbar(`There was a problem while deleting your picture. We're aware and are looking at it.`, 'error')
         }
+      },
+
+      milestoneDeleted(milestoneId) {
+        this.relationshipMilestones = this.relationshipMilestones.filter(m => m.id != milestoneId)
+        this.setMilestones()
+        this.openSnackbar('Successfully deleted milestone!')
       }
     },
 
     async created() {
       const responses = await Promise.all([
         AuthFactory.isRelationshipAdmin(this.id),
-        RelationshipsFactory.getImages(this.id)
+        RelationshipsFactory.getImages(this.id),
+        RelationshipsFactory.getMilestones(this.id)
       ])
 
-      this.isRelationshipAdmin  = responses[0]
-      this.relationshipImages   = responses[1]
+      this.isRelationshipAdmin    = responses[0]
+      this.relationshipImages     = responses[1]
+      this.relationshipMilestones = responses[2]
       this.setAllImages()
+      this.setMilestones()
     },
 
     components: {
       'count-up': CountUpTable,
       'count-up-hor': CountUpHorizontal,
+      'milestone-editor': MilestoneEditor,
       'picture-uploader': PictureUploader
     }
   }

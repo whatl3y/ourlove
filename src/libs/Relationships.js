@@ -38,6 +38,27 @@ export default class Relationships {
     return rows
   }
 
+  async getMilestones(path=this.path) {
+    const { rows } = await this.postgres.query(`
+      select
+        i.main_image_name,
+        i.small_image_name,
+        i.tiny_image_name,
+        i.orientation,
+        r.person1_name,
+        r.person1_birthday,
+        r.person2_name,
+        r.person2_birthday,
+        m.*
+      from relationship_milestones as m
+      inner join relationships_images as i on i.id = m.image_id
+      inner join relationships as r on r.id = m.relationships_id
+      where r.path = $1
+      order by m.milestone_time, m.created_at
+    `, [path])
+    return rows
+  }
+
   async create(data, path=this.path) {
     const startDate = data.startDate || data.relationship_started
     const dStartDate = (startDate) ? moment.utc(startDate).toDate() : null
@@ -108,10 +129,53 @@ export default class Relationships {
     paramsAry.push(id)
 
     const queryString = queryAry.concat(['returning id']).join(' ')
-    await this.postgres.query(queryString, paramsAry)
+    return await this.postgres.query(queryString, paramsAry)
   }
 
   async deletePicture(id) {
     await this.postgres.query(`delete from relationships_images where id = $1`, [id])
+  }
+
+  async updateMilestone(milestone, milestoneId=null, relationshipId=null) {
+    if (milestoneId) {
+      const updateableColumns = ['image_id', 'milestone_time', 'title', 'subtitle', 'description']
+      let queryAry = ['update relationship_milestones set']
+      let paramsAry = []
+      let paramIndTracker = 1
+
+      Object.keys(milestone).forEach(key => {
+        if (updateableColumns.indexOf(key) > -1) {
+          queryAry.push(`${key} = $${paramIndTracker},`)
+          paramsAry.push(milestone[key])
+          paramIndTracker++
+        }
+      })
+
+      queryAry.push('updated_at = now()')
+      queryAry.push(`where id = $${paramIndTracker}`)
+      paramsAry.push(milestoneId)
+
+      const queryString = queryAry.concat(['returning id']).join(' ')
+      return await this.postgres.query(queryString, paramsAry)
+    } else {
+      return await this.postgres.query(`
+        insert into relationship_milestones
+        (relationships_id, image_id, milestone_time, title, subtitle, description)
+        values
+        ($1, $2, $3, $4, $5, $6, $7)
+        returning id
+      `, [
+        relationshipId,
+        milestone.image_id,
+        milestone.milestone_time,
+        milestone.title,
+        milestone.subtitle,
+        milestone.description
+      ])
+    }
+  }
+
+  async deleteMilestone(id) {
+    await this.postgres.query(`delete from relationship_milestones where id = $1`, [id])
   }
 }
