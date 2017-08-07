@@ -22,25 +22,17 @@
             div.d-inline-block
               div {{ relationship.person1_name }} &amp; {{ relationship.person2_name }}
               div(v-if="relationship.relationship_started",style="font-size:10px") established {{ getEstablishedOutput(relationship.relationship_started) }}
-        div.d-flex.flex-row.flex-wrap.justify-content-center(v-if="nonPrimaryImages.length")
-          div.img-thumbnail.border-only.dark-border.force-circle.w-40.margin-sm(v-for="img in nonPrimaryImages")
-            b-popover(:triggers="['hover']")
-              span(slot="content")
-                div
-                  img.img-fluid(style="max-width:200px",:src="getImageSrc(img, 'main')")
-                div.text-center
-                  div {{ getFormattedDate(img.image_taken || img.created_at) }}
-              img(:class="{ portrait: img.orientation == 'portrait', landscape: img.orientation == 'landscape' }",:src="getImageSrc(img, 'small')")
+        div.d-flex.flex-row.flex-wrap.justify-content-center(v-if="nonPrimaryImages.length > 0 && nonPrimaryImages.length < 20")
+          circular-image(v-for="image in nonPrimaryImages",:key="image.id",:img="image",:size="40")
       hr.hidden-lg-up.col-12
       div.col(v-if="relationship.relationship_started || relationship.relationship_married")
         count-up-hor(:timestamp="relationship.relationship_started",title="Their relationship started")
         - //hr(v-if="relationship.relationship_married")
         count-up.margin-top-xlg(minimal,:timestamp="relationship.relationship_married",title="They got married")
       hr.col-12.margin-top-lg
-      div.col-12(v-if="nonPrimaryImages.length")
-        - //div.d-flex.flex-row.flex-wrap.justify-content-center
-        - //  div.img-thumbnail.border-only.dark-border.force-circle.width-100.margin-sm(v-for="img in nonPrimaryImages")
-        - //    img(:class="{ portrait: img.orientation == 'portrait', landscape: img.orientation == 'landscape' }",:src="getImageSrc(img, 'small')")
+      div.col-12(v-if="nonPrimaryImages.length >= 20")
+        div.d-flex.flex-row.flex-wrap.justify-content-center
+          circular-image(v-for="image in nonPrimaryImages",:key="image.id",:img="image",:size="100")
       div.col-12
         h1 Milestones
         timeline(:events="formattedRelationshipMilestones")
@@ -87,13 +79,14 @@
                     - //b-button.margin-right-sm(size="sm",@click="updatePicture(image)") Update
                     b-button(size="sm",variant="danger",@click="deletePicture(image.id)") Delete
         b-tab(title="Milestones &amp; Events")
-          milestone-editor(:id="id",:milestones="relationshipMilestones",:images="relationshipImages",@successDelete="milestoneDeleted")
+          milestone-editor(:id="id",:milestones="relationshipMilestones",:images="relationshipImages",@successUpdate="milestoneAddedOrUpdated",@successDelete="milestoneDeleted")
         b-tab(title="Reminders")
         - //b-tab(title="Diary")
 </template>
 
 <script>
   import moment from 'moment'
+  import CircularImage from './CircularImage'
   import CountUpHorizontal from './CountUpHorizontal'
   import CountUpTable from './CountUpTable'
   import MilestoneEditor from './MilestoneEditor'
@@ -213,6 +206,12 @@
         }
       },
 
+      milestoneAddedOrUpdated(milestone) {
+        this.relationshipMilestones.push(milestone)
+        this.setMilestones()
+        this.openSnackbar('Successfully updated milestone!')
+      },
+
       milestoneDeleted(milestoneId) {
         this.relationshipMilestones = this.relationshipMilestones.filter(m => m.id != milestoneId)
         this.setMilestones()
@@ -235,6 +234,7 @@
     },
 
     components: {
+      'circular-image': CircularImage,
       'count-up': CountUpTable,
       'count-up-hor': CountUpHorizontal,
       'milestone-editor': MilestoneEditor,

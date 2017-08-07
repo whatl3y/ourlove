@@ -138,7 +138,6 @@ export default async function Api(req, res) {
             const newMilestone  = body.milestone
             let milestoneId     = newMilestone.id
 
-            console.log('rela', record)
             milestoneId = await relationship.updateMilestone(newMilestone, milestoneId, record.id)
             return res.json({id: milestoneId})
 

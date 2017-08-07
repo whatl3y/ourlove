@@ -1,7 +1,7 @@
 <template lang="pug">
   div
     div.text-center
-      a.margin-bottom-md(href="javascript:void(0)",@click="milestones.push({})")
+      a.margin-bottom-md(href="javascript:void(0)",@click="milestones.unshift({})")
         i.fa.fa-3x.fa-plus-square
     div.d-flex.flex-column(v-if="milestones.length",v-for="(milestone,index) in milestones")
       b-card.margin-bottom-sm
@@ -20,7 +20,7 @@
               h2 Edit Milestone
               div.row
                 div.col-sm-12.col-md-3
-                  img.img-fluid.img-thumbnail(:src="'/file/s3/' + milestone.main_image_name",v-if="milestone.main_image_name")
+                  img.img-fluid.img-thumbnail(:src="'/file/s3/' + ((selectedImageId) ? getImageFilenameFromId(selectedImageId) : milestone.main_image_name)",v-if="selectedImageId || milestone.main_image_name")
                   div.text-center
                     b-button.margin-top-md(v-b-modal="'imageModal' + index") Change Image
                     b-modal(:id="'imageModal' + index",title="Select Image",@ok="imageSelected($event, milestone)",@shown="clearImage(milestone)")
@@ -83,6 +83,9 @@
       getFormattedDate(timestamp, format="MMMM Do, YYYY") {
         return moment.utc(timestamp).format(format)
       },
+      getImageFilenameFromId(imageId) {
+        return this.images.filter(img => img.id == imageId)[0].main_image_name
+      },
       getLandscapeOrPortrait(typeToConfirm, orientation='portrait') {
         return typeToConfirm == orientation
       },
@@ -100,10 +103,13 @@
         return !!this.editModeMap[mId] || typeof this.editModeMap[mId] === 'undefined'
       },
       toggleEditMode(mId) {
+        this.clearImage(this.milestones.filter(m => m.id == mId)[0])
         return this.editModeMap[mId] = !this.editModeMap[mId]
       },
       async deleteMilestone(milestoneId) {
         try {
+          if (!milestoneId) return this.$emit('successDelete', null)
+
           await RelationshipsFactory.deleteMilestone(milestoneId)
           this.$emit('successDelete', milestoneId)
 
@@ -113,7 +119,9 @@
       },
       async updateMilestone(milestone) {
         try {
-          await RelationshipsFactory.createOrUpdateMilestone(milestone, this.id)
+          const res = await RelationshipsFactory.createOrUpdateMilestone(milestone, this.id)
+          milestone = Object.assign(milestone, {id: res.id})
+          this.toggleEditMode(milestone.id)
           this.$emit('successUpdate', milestone)
 
         } catch(err) {

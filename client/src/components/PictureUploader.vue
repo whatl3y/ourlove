@@ -110,7 +110,7 @@
         this.activeTab = type
 
         const integrationTypes = ['facebook', 'instagram', 'pinterest']
-        if (integrationTypes.indexOf(this.activeTab) > -1)
+        if (integrationTypes.indexOf(this.activeTab) > -1 && this.hasIntegration(this.activeTab))
           await this.getIntegrationImages()
       },
 
