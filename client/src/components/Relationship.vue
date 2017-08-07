@@ -23,15 +23,25 @@
               div {{ relationship.person1_name }} &amp; {{ relationship.person2_name }}
               div(v-if="relationship.relationship_started",style="font-size:10px") established {{ getEstablishedOutput(relationship.relationship_started) }}
         div.d-flex.flex-row.flex-wrap.justify-content-center(v-if="nonPrimaryImages.length")
-          div.img-thumbnail.border-only.dark-border.force-circle.w-60.margin-sm(v-for="img in nonPrimaryImages")
-            img(:class="{ portrait: img.orientation == 'portrait', landscape: img.orientation == 'landscape' }",:src="getImageSrc(img, 'small')")
+          div.img-thumbnail.border-only.dark-border.force-circle.w-40.margin-sm(v-for="img in nonPrimaryImages")
+            b-popover(:triggers="['hover']")
+              span(slot="content")
+                div
+                  img.img-fluid(style="max-width:200px",:src="getImageSrc(img, 'main')")
+                div.text-center
+                  div {{ getFormattedDate(img.image_taken || img.created_at) }}
+              img(:class="{ portrait: img.orientation == 'portrait', landscape: img.orientation == 'landscape' }",:src="getImageSrc(img, 'small')")
       hr.hidden-lg-up.col-12
       div.col(v-if="relationship.relationship_started || relationship.relationship_married")
         count-up-hor(:timestamp="relationship.relationship_started",title="Their relationship started")
-        hr(v-if="relationship.relationship_married")
-        count-up(minimal,:timestamp="relationship.relationship_married",title="They got married")
+        - //hr(v-if="relationship.relationship_married")
+        count-up.margin-top-xlg(minimal,:timestamp="relationship.relationship_married",title="They got married")
+      hr.col-12.margin-top-lg
+      div.col-12(v-if="nonPrimaryImages.length")
+        - //div.d-flex.flex-row.flex-wrap.justify-content-center
+        - //  div.img-thumbnail.border-only.dark-border.force-circle.width-100.margin-sm(v-for="img in nonPrimaryImages")
+        - //    img(:class="{ portrait: img.orientation == 'portrait', landscape: img.orientation == 'landscape' }",:src="getImageSrc(img, 'small')")
       div.col-12
-        hr
         h1 Milestones
         timeline(:events="formattedRelationshipMilestones")
     div(v-if="editMode")
@@ -128,7 +138,6 @@
       },
 
       successfullyAddedPicture(file, response) {
-        console.log('res', response)
         if (response instanceof Array)
           this.relationshipImages = this.relationshipImages.concat(response)
         else

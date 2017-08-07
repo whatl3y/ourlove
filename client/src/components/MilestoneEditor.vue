@@ -1,6 +1,9 @@
 <template lang="pug">
   div
-    div.d-flex.flex-column(v-if="milestones.length",v-for="milestone in milestones")
+    div.text-center
+      a.margin-bottom-md(href="javascript:void(0)",@click="milestones.push({})")
+        i.fa.fa-3x.fa-plus-square
+    div.d-flex.flex-column(v-if="milestones.length",v-for="(milestone,index) in milestones")
       b-card.margin-bottom-sm
         div.row
           div.col-md-6.col-lg-3.d-flex.justify-content-center(v-if="!isInEditMode(milestone.id)")
@@ -17,10 +20,10 @@
               h2 Edit Milestone
               div.row
                 div.col-sm-12.col-md-3
-                  img.img-fluid.img-thumbnail(:src="'/file/s3/' + milestone.main_image_name")
+                  img.img-fluid.img-thumbnail(:src="'/file/s3/' + milestone.main_image_name",v-if="milestone.main_image_name")
                   div.text-center
-                    b-button.margin-top-md(v-b-modal="'imageModal'") Edit Image
-                    b-modal#imageModal(title="Select Image",@ok="imageSelected($event, milestone)",@shown="clearImage(milestone)")
+                    b-button.margin-top-md(v-b-modal="'imageModal' + index") Change Image
+                    b-modal(:id="'imageModal' + index",title="Select Image",@ok="imageSelected($event, milestone)",@shown="clearImage(milestone)")
                       div.d-flex.flex-wrap.justify-content-center.align-items-center
                         div.possible-images.padding-sm(style="border-radius:4px",v-for="image in images",:class="{ selected: selectedImageId == image.id }")
                           a(href="javascript:void(0)",@click="clickAndSelectImage(image.id)")
@@ -94,7 +97,7 @@
         milestone.main_image_name = this.images.filter(i => i.id == this.selectedImageId)[0].main_image_name
       },
       isInEditMode(mId) {
-        return !!this.editModeMap[mId]
+        return !!this.editModeMap[mId] || typeof this.editModeMap[mId] === 'undefined'
       },
       toggleEditMode(mId) {
         return this.editModeMap[mId] = !this.editModeMap[mId]

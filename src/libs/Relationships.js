@@ -162,11 +162,11 @@ export default class Relationships {
         insert into relationship_milestones
         (relationships_id, image_id, milestone_time, title, subtitle, description)
         values
-        ($1, $2, $3, $4, $5, $6, $7)
+        ($1, $2, $3, $4, $5, $6)
         returning id
       `, [
-        relationshipId,
-        milestone.image_id,
+        parseInt(relationshipId),
+        parseInt(milestone.image_id),
         milestone.milestone_time,
         milestone.title,
         milestone.subtitle,

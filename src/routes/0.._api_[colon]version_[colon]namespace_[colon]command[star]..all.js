@@ -137,10 +137,9 @@ export default async function Api(req, res) {
           case 'update_milestone':
             const newMilestone  = body.milestone
             let milestoneId     = newMilestone.id
-            let relationshipId  = null
-            if (!milestoneId) relationshipId = await relationship.getByPath()
 
-            milestoneId = await relationship.updateMilestone(newMilestone, milestoneId, relationshipId)
+            console.log('rela', record)
+            milestoneId = await relationship.updateMilestone(newMilestone, milestoneId, record.id)
             return res.json({id: milestoneId})
 
           case 'delete_milestone':
