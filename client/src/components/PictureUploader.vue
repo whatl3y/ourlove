@@ -31,8 +31,7 @@
                       h5.col {{ index+1 }}
                       h5.col.text-right
                         i.fa(:class="{ 'fa-minus-circle': isIntegrationImageAdded(img, 'facebook'), 'fa-plus-circle': !isIntegrationImageAdded(img, 'facebook') }")
-                    div.img-thumbnail.border-only.dark-border.force-circle.w-60.margin-sm
-                      img(:class="{ portrait: getLandscapeOrPortrait(img.images[0].width, img.images[0].height, 'portrait'), landscape: getLandscapeOrPortrait(img.images[0].width, img.images[0].height, 'landscape') }",:src="img.images[0].source")
+                    circular-image(:img="img.images[0]",:orientation="(getLandscapeOrPortrait(img.images[0].width, img.images[0].height, 'landscape')) ? 'landscape' : 'portrait'",:size="60")
                     div.text-center(style="font-size:8px;") {{ getFormattedDate(img.created_time) }}
             div(v-if="!hasIntegration('facebook')")
               i You haven't integrated with Facebook yet. &nbsp;
@@ -51,9 +50,10 @@
                       h5.col {{ index+1 }}
                       h5.col.text-right
                         i.fa(:class="{ 'fa-minus-circle': isIntegrationImageAdded(img, 'instagram'), 'fa-plus-circle': !isIntegrationImageAdded(img, 'instagram') }")
-                    div.img-thumbnail.border-only.dark-border.force-circle.w-60.margin-sm
-                      img(:class="{ portrait: getLandscapeOrPortrait(img.images.standard_resolution.width, img.images.standard_resolution.height, 'portrait'), landscape: getLandscapeOrPortrait(img.images.standard_resolution.width, img.images.standard_resolution.height, 'landscape') }",:src="img.images.standard_resolution.url")
-                    - //div.text-center(style="font-size:8px;") {{ getFormattedDate(img.created_time) }}
+                    circular-image(:img="img.images.standard_resolution",:orientation="(getLandscapeOrPortrait(img.images.standard_resolution.width, img.images.standard_resolution.height, 'landscape')) ? 'landscape' : 'portrait'",:size="60")
+                    - //div.img-thumbnail.border-only.dark-border.force-circle.w-60.margin-sm
+                    - //  img(:class="{ portrait: getLandscapeOrPortrait(img.images.standard_resolution.width, img.images.standard_resolution.height, 'portrait'), landscape: getLandscapeOrPortrait(img.images.standard_resolution.width, img.images.standard_resolution.height, 'landscape') }",:src="img.images.standard_resolution.url")
+                    div.text-center(style="font-size:8px;") {{ getFormattedDate(img.created_time, true) }}
             div(v-if="!hasIntegration('instagram')")
               i You haven't integrated with Instagram yet. &nbsp;
               a(href="/oauth/instagram")
@@ -63,6 +63,7 @@
 
 <script>
   import moment from 'moment'
+  import CircularImage from './CircularImage'
   import AuthFactory from '../factories/Auth'
   import IntegrationsFactory from '../factories/Integrations'
 
@@ -79,7 +80,9 @@
     },
 
     methods: {
-      getFormattedDate(timestamp, format="MMMM Do, YYYY") {
+      getFormattedDate(timestamp, isUnixTimestamp=false, format="MMMM Do, YYYY") {
+        if (isUnixTimestamp)
+          return moment.utc(parseInt(timestamp * 1000)).format(format)
         return moment.utc(timestamp).format(format)
       },
 
@@ -171,6 +174,10 @@
     async created() {
       const info = await AuthFactory.getIntegrations()
       this.integrations = info.integrations
+    },
+
+    components: {
+      'circular-image': CircularImage
     }
   }
 </script>

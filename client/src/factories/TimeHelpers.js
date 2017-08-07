@@ -1,6 +1,10 @@
 import moment from 'moment'
 
 export default {
+  getFormattedDate(timestamp, format="MMMM Do, YYYY") {
+    return moment.utc(timestamp).format(format)
+  },
+
   getTimeDifferenceObj(dateStart, dateEnd=moment().toDate(), calculateNegativeDiff=false) {
     if (typeof dateStart === 'undefined') return false
 

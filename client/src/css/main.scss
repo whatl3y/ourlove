@@ -10,6 +10,11 @@ $gray:            #b0b0b0;
   src: url(/public/fonts/Esphimere.otf);
 }
 
+@font-face {
+  font-family: esphimere_bold;
+  src: url(/public/fonts/Esphimere_Bold.otf);
+}
+
 body {
   font-family: "esphimere" !important;
   border-top: 6px solid $main_color;
@@ -73,7 +78,6 @@ a {
   border-bottom: 2px solid $main_color;
   color: #ffffff;
   padding: 2px;
-  margin-bottom: 6px;
 
   a {
     color: #ffffff !important;

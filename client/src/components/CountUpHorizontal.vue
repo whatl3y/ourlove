@@ -45,6 +45,8 @@
       }
     },
     methods: {
+      getFormattedDate: TimeHelpers.getFormattedDate,
+
       setFullCountdownDifference() {
         const start = moment.utc().toDate()
         const end = moment.utc(this.timestamp).toDate()
@@ -58,9 +60,6 @@
           ${this.fullCountdownObj.minutes} minute${(this.fullCountdownObj.minutes == 1) ? '' : 's'},
           and ${this.fullCountdownObj.seconds} second${(this.fullCountdownObj.seconds == 1) ? '' : 's'}
           ago`
-      },
-      getFormattedDate(timestamp, format="MMMM Do, YYYY") {
-        return moment.utc(timestamp).format(format)
       },
       getTimeDifference(units='days') {
         return moment.utc().diff(moment.utc(this.timestamp), units)

@@ -23,7 +23,7 @@
               div {{ relationship.person1_name }} &amp; {{ relationship.person2_name }}
               div(v-if="relationship.relationship_started",style="font-size:10px") established {{ getEstablishedOutput(relationship.relationship_started) }}
         div.d-flex.flex-row.flex-wrap.justify-content-center(v-if="nonPrimaryImages.length > 0 && nonPrimaryImages.length < 20")
-          circular-image(v-for="image in nonPrimaryImages",:key="image.id",:img="image",:size="40")
+          circular-image(v-for="image in nonPrimaryImages",:key="image.id",:img="image",:size="60")
       hr.hidden-lg-up.col-12
       div.col(v-if="relationship.relationship_started || relationship.relationship_married")
         count-up-hor(:timestamp="relationship.relationship_started",title="Their relationship started")
@@ -33,8 +33,8 @@
       div.col-12(v-if="nonPrimaryImages.length >= 20")
         div.d-flex.flex-row.flex-wrap.justify-content-center
           circular-image(v-for="image in nonPrimaryImages",:key="image.id",:img="image",:size="100")
-      div.col-12
-        h1 Milestones
+      div.col-12(v-if="formattedRelationshipMilestones.length > 0")
+        h1 Events &amp; Milestones
         timeline(:events="formattedRelationshipMilestones")
     div(v-if="editMode")
       b-tabs(card,ref="edit-tabs",v-model="editTabIndex")
@@ -78,7 +78,7 @@
                   div.text-center
                     - //b-button.margin-right-sm(size="sm",@click="updatePicture(image)") Update
                     b-button(size="sm",variant="danger",@click="deletePicture(image.id)") Delete
-        b-tab(title="Milestones &amp; Events")
+        b-tab(title="Events &amp; Milestones")
           milestone-editor(:id="id",:milestones="relationshipMilestones",:images="relationshipImages",@successUpdate="milestoneAddedOrUpdated",@successDelete="milestoneDeleted")
         b-tab(title="Reminders")
         - //b-tab(title="Diary")
@@ -93,6 +93,8 @@
   import PictureUploader from './PictureUploader'
   import AuthFactory from '../factories/Auth'
   import RelationshipsFactory from '../factories/Relationships'
+  import ImageHelpers from '../factories/ImageHelpers'
+  import TimeHelpers from '../factories/TimeHelpers'
 
   export { Relationship as default }
 
@@ -121,10 +123,7 @@
         return this.$root.$refs.toastr[functionTypeMap[type] || 's'](message)
       },
 
-      getImageSrc(image, prefix='main') {
-        const fileName = image[`${prefix}_image_name`] || image.main_image_name || image.medium_image_name || image.small_image_name
-        return `/file/s3/${fileName}`
-      },
+      getImageSrc: ImageHelpers.getImageSrc,
 
       updateEditMode() {
         this.editMode = !this.editMode
@@ -143,15 +142,15 @@
         return moment.utc(timestamp).format('MMMM YYYY')
       },
 
-      getFormattedDate(timestamp, format="MMMM Do, YYYY") {
-        return moment.utc(timestamp).format(format)
-      },
+      getFormattedDate: TimeHelpers.getFormattedDate,
 
       setAllImages() {
         const primaryImages   = this.relationshipImages.filter(img => img.relationship_primary_image)
         this.primaryImage     = (primaryImages.length > 0) ? primaryImages[0] : this.relationshipImages[0]
         if (this.primaryImage)
           this.nonPrimaryImages = this.relationshipImages.filter(img => img.id !== this.primaryImage.id)
+        else
+          this.primaryImage = {src: '/public/images/favicon.png'}
       },
 
       setMilestones() {

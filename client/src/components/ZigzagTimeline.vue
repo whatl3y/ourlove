@@ -10,7 +10,7 @@
           div.timeline-panel
             div.timeline-heading
               h3(v-if="event.title") {{ event.title }}
-              h4.subheading(v-if="event.timestamp") {{ formattedTimestamp(event.timestamp) }}
+              h4.subheading(v-if="event.timestamp") {{ getFormattedDate(event.timestamp, 'MMM Do, YYYY') }}
               h4.subheading(v-if="event.subtitle") {{ event.subtitle }}
             div.timeline-body(v-if="event.body")
               p.text-muted {{ event.body }}
@@ -22,16 +22,16 @@
   // bootsnipp.com/snippets/featured/zigzag-timeline-layout
 
   import moment from 'moment'
+  import TimeHelpers from '../factories/TimeHelpers'
 
   export default {
     name: 'home',
     props: ['events', 'format'],
     methods: {
+      getFormattedDate: TimeHelpers.getFormattedDate,
+      
       getLandscapeOrPortrait(typeToConfirm, orientation='portrait') {
         return typeToConfirm == orientation
-      },
-      formattedTimestamp(string) {
-        return moment(string).format(this.format || 'MMM Do, YYYY')
       },
       isInverted(index) {
         return index % 2 === 1
