@@ -1,34 +1,32 @@
 <template lang="pug">
-  div.text-center(v-if="timestamp")
-    h3(v-if="title") {{ title }}
-    div.gray.lead(style="font-size:12px") {{ getFormattedDate(timestamp) }}
-    div.item(v-if="minimal")
-      small {{ fullCountdown }}
-    table.table.table-inverse.thin(v-if="!minimal")
-      tbody.text-center
-        tr
-          td {{ dynamicTimes.seconds }} seconds ago
-        tr
-          td {{ dynamicTimes.minutes }} minutes ago
-        tr
-          td {{ dynamicTimes.days }} days ago
-        - //tr
-        - //  td.text-right
-        - //    strong {{ dynamicTimes.weeks }}
-        - //  td weeks ago
-        - //tr
-        - //  td.text-right
-        - //    strong {{ dynamicTimes.months }}
-        - //  td months ago
-        - //tr
-        - //  td.text-right
-        - //    strong {{ dynamicTimes.years }}
-        - //  td years ago
-        tr(v-if="fullCountdown")
-          td(colspan="2")
-            div(style="margin-left:10px;") or in all,
-            div
-              small {{ fullCountdown }}
+  b-popover(:triggers="['hover']",:placement="popover_placement || 'bottom'")
+    div.text-center(v-if="timestamp")
+      h3(v-if="title") {{ title }}
+      div.gray.lead(style="font-size:12px") {{ getFormattedDate(timestamp) }}
+      div.item
+        small {{ fullCountdown }}
+    span.dark(slot="content")
+      h5 More detail:
+      table.table.thin
+        tbody.text-center
+          tr
+            td {{ dynamicTimes.seconds }} seconds ago
+          tr
+            td {{ dynamicTimes.minutes }} minutes ago
+          tr
+            td {{ dynamicTimes.days }} days ago
+          - //tr
+          - //  td.text-right
+          - //    strong {{ dynamicTimes.weeks }}
+          - //  td weeks ago
+          - //tr
+          - //  td.text-right
+          - //    strong {{ dynamicTimes.months }}
+          - //  td months ago
+          - //tr
+          - //  td.text-right
+          - //    strong {{ dynamicTimes.years }}
+          - //  td years ago
 </template>
 
 <script>
@@ -36,7 +34,7 @@
   import TimeHelpers from '../factories/TimeHelpers'
 
   export default {
-    props: ['minimal', 'timestamp', 'title'],
+    props: ['popover_placement', 'timestamp', 'title'],
     data() {
       return {
         fullCountdown: null,
@@ -67,13 +65,10 @@
           and ${diffObj.seconds} second${(diffObj.seconds == 1) ? '' : 's'}
           ago`
       },
-      getTimeDifference(units='days') {
-        return moment.utc().diff(moment.utc(this.timestamp), units)
-      },
       updateTimerCountUps() {
         const units = ['seconds', 'minutes', 'days', 'weeks', 'months', 'years']
         units.forEach(unit => {
-          this.dynamicTimes[unit] = this.getTimeDifference(unit)
+          this.dynamicTimes[unit] = TimeHelpers.getTimeDifferenceFromUnits(this.timestamp, moment.utc(), unit)
         })
       }
     },
@@ -89,10 +84,6 @@
 </script>
 
 <style scoped>
-  .table.thin td {
-    padding: 2px !important;
-  }
-
   .table.two-cells td {
     width: 50%;
   }

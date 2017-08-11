@@ -80,6 +80,8 @@ async function createRelationships(postgres) {
       id serial PRIMARY KEY,
       created_user_id integer REFERENCES users,
       path varchar(255),
+      private boolean,
+      private_password text,
       person1_name varchar(255),
       person1_birthday date,
       person2_name varchar(255),
@@ -95,6 +97,7 @@ async function createRelationships(postgres) {
 async function createRelationshipsIndexes(postgres) {
   await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationships_created_user_id on relationships (created_user_id)`)
   await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationships_path on relationships (path)`)
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationships_private on relationships (private)`)
 }
 
 async function createUsersRelationshipsMap(postgres) {
@@ -119,6 +122,7 @@ async function createRelationshipsImages(postgres) {
     CREATE TABLE IF NOT EXISTS relationships_images (
       id serial PRIMARY KEY,
       relationships_id integer REFERENCES relationships,
+      is_hidden boolean,
       image_type varchar(255),
       image_type_uid varchar(255),
       relationship_primary_image boolean,
@@ -145,6 +149,7 @@ async function createRelationshipMilestones(postgres) {
     CREATE TABLE IF NOT EXISTS relationship_milestones (
       id serial PRIMARY KEY,
       relationships_id integer REFERENCES relationships,
+      is_hidden boolean,
       image_id integer REFERENCES relationships_images,
       milestone_time timestamp,
       title varchar(255),
@@ -158,6 +163,7 @@ async function createRelationshipMilestones(postgres) {
 
 async function createRelationshipMilestonesIndexes(postgres) {
   await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationship_milestones_relationships_id on relationship_milestones (relationships_id)`)
+  await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationship_milestones_is_hidden on relationship_milestones (is_hidden)`)
   await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationship_milestones_image_id on relationship_milestones (image_id)`)
 }
 

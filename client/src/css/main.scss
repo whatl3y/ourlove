@@ -50,6 +50,10 @@ a {
   color: $main_color;
 }
 
+.dark {
+  color: $dark_color;
+}
+
 .list-group-item.active {
   background: $main_color !important;
   border-color: $dark_color;
@@ -154,6 +158,10 @@ a {
   margin-bottom: 15px;
 }
 
+.margin-top-sm {
+  margin-top: 5px;
+}
+
 .margin-top-md {
   margin-top: 15px;
 }
@@ -172,6 +180,12 @@ a {
 
 .table-inverse {
   background: $dark_color !important;
+}
+
+.table.thin {
+  td {
+    padding: 2px !important;
+  }
 }
 
 .card.dark {

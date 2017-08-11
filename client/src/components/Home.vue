@@ -41,7 +41,7 @@
 <style scoped>
   .main_landing {
     background-image:url("/public/images/marketing/cover.jpg");
-    background-attachment: absolute;
+    /*background-attachment: absolute;*/
     background-position: top center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -59,6 +59,12 @@
   @media(min-width: 768px) {
     .main_landing {
       min-height: 600px;
+    }
+  }
+
+  @media(min-width: 1800px) {
+    .main_landing {
+      min-height: 900px;
     }
   }
 </style>

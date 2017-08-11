@@ -40,12 +40,12 @@ async function truncateTables(postgres) {
   // Truncate all tables
   await postgres.query(`
     truncate  users_relationships_map,
-              users_oauth_integrations,
-              relationships_images,
-              relationship_milestones,
               relationship_reminders,
-              relationships,
+              relationship_milestones,
+              relationships_images,
               relationship_tags_map,
+              users_oauth_integrations,
+              relationships,
               tags,
               users;
   `)

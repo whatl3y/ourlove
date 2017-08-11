@@ -165,17 +165,18 @@ export default async function Api(req, res) {
               }
             }
 
-            const uploadFiles = async (imageType, imageTypeUid, imageUrlorFilePath, fileName=null) => {
+            const uploadFiles = async (imageType, imageTypeUid, imageUrlorFilePath, imageTakenTime=null, fileName=null) => {
               const imageFileTypes    = ['.gif', '.jpg', '.jpeg', '.png']
               // const fileNameFromUrl   = imageUrlorFilePath.split('/').filter(piece => imageFileTypes.filter(ext => piece.indexOf(ext) > -1).length > 0)[0] + '.jpg'
               fileName                = fileName  || `uploaded_picture_${imageType}.jpg`
-              const finalLwipImage    = (imageType === 'upload')
+              const {lwipImg, exif}   = (imageType === 'upload')
                                         ? await imageHelpers.rotateImagePerExifOrientation('fs', imageUrlorFilePath) //filePath)
                                         : await imageHelpers.rotateImagePerExifOrientation('url', imageUrlorFilePath) //imageUrl)
 
-              const newImageBuffer    = await imageHelpers.toBuffer(finalLwipImage, 'jpg')    //ImageHelpers.getImageTypeFromFile(fileName))
-              const [w, h]            = await imageHelpers.dimensions(finalLwipImage)
+              const newImageBuffer    = await imageHelpers.toBuffer(lwipImg, 'jpg')    //ImageHelpers.getImageTypeFromFile(fileName))
+              const [w, h]            = await imageHelpers.dimensions(lwipImg)
               const orientation       = (w / h > 1) ? 'landscape' : 'portrait'
+              const dateImgModified   = imageTakenTime || ((exif && exif.image && exif.image.ModifyDate) ? moment.utc(exif.image.ModifyDate, 'YYYY:MM:DD HH:mm:ss').toDate() : null)
 
               const [mainS3FileName, smallerS3FileName, tinyS3FileName] = await Promise.all([
                 s3.writeFile({filename: fileName, data: newImageBuffer}),
@@ -184,10 +185,10 @@ export default async function Api(req, res) {
               ])
 
               const { rows } = await postgres.query(`
-                insert into relationships_images (relationships_id, image_type, image_type_uid, main_image_name, small_image_name, tiny_image_name, orientation)
-                values ($1, $2, $3, $4, $5, $6, $7)
+                insert into relationships_images (relationships_id, image_type, image_type_uid, main_image_name, small_image_name, tiny_image_name, orientation, image_taken)
+                values ($1, $2, $3, $4, $5, $6, $7, $8)
                 returning id
-              `, [record.id, imageType, imageTypeUid, mainS3FileName.filename, smallerS3FileName.filename, tinyS3FileName.filename, orientation])
+              `, [record.id, imageType, imageTypeUid, mainS3FileName.filename, smallerS3FileName.filename, tinyS3FileName.filename, orientation, dateImgModified])
               const newPictureId = rows[0].id
 
               return {
@@ -196,6 +197,7 @@ export default async function Api(req, res) {
                 small_image_name:   smallerS3FileName.filename,
                 tiny_image_name:    tinyS3FileName.filename,
                 orientation:        orientation,
+                image_taken:        dateImgModified,
                 created_at:         new Date()
               }
             }
@@ -208,13 +210,14 @@ export default async function Api(req, res) {
               filePath  = fileInfo.path
               fileType  = fileInfo.type
               imageType = 'upload'
-              pictures = await uploadFiles(imageType, null, filePath, fileName)
+              pictures = await uploadFiles(imageType, null, filePath, null, fileName)
 
             } else {
               pictures = await Promise.all(
                 body.images.map(async img => {
                   const url = convertImageUrl(img)
-                  return await uploadFiles(img.type, img.id, url)
+                  const createdTime = (img.type == 'instagram') ? moment.utc(parseInt(img.created_time) * 1000).toDate() : moment.utc(img.created_time).toDate()
+                  return await uploadFiles(img.type, img.id, url, createdTime)
                 })
               )
             }

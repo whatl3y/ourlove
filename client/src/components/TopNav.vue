@@ -11,7 +11,7 @@
             div.d-flex.align-items-center.text-small(v-if="displayName",style="padding-right:4px;margin-right:4px;border-right:1px solid")
               strong Welcome, {{ displayName }}
             div.d-flex.align-items-center.text-small(v-if="!(hasIntegration('facebook') || hasIntegration('instagram') || hasIntegration('pinterest'))")
-              div login
+              div login >
             b-nav-item(to="/oauth/facebook",v-if="!hasIntegration('facebook')")
               i.fa.fa-2x.fa-facebook-square(aria-hidden="true")
             b-nav-item(to="/oauth/instagram",v-if="!hasIntegration('instagram')")

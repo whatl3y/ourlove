@@ -1,8 +1,8 @@
 <template lang="pug">
-  div.col.valid-relationship-container
+  div.col.valid-relationship-container.margin-top-sm
     div.row(v-if="isRelationshipAdmin")
       div.col
-        strong(v-show="editMode",@click="updateEditMode") Relationship Edit Mode
+        strong.clicker(v-show="editMode",@click="updateEditMode") Relationship Edit Mode
       div.col-2.text-right
         a.gray(href="javascript:void(0)",@click="updateEditMode")
           i.fa.fa-gear
@@ -28,7 +28,7 @@
       div.col(v-if="relationship.relationship_started || relationship.relationship_married")
         count-up-hor(:timestamp="relationship.relationship_started",title="Their relationship started")
         - //hr(v-if="relationship.relationship_married")
-        count-up.margin-top-xlg(minimal,:timestamp="relationship.relationship_married",title="They got married")
+        count-up-min.margin-top-xlg(:timestamp="relationship.relationship_married",title="They got married")
       hr.col-12.margin-top-lg
       div.col-12(v-if="nonPrimaryImages.length >= 20")
         div.d-flex.flex-row.flex-wrap.justify-content-center
@@ -88,7 +88,7 @@
   import moment from 'moment'
   import CircularImage from './CircularImage'
   import CountUpHorizontal from './CountUpHorizontal'
-  import CountUpTable from './CountUpTable'
+  import CountUpMinimal from './CountUpMinimal'
   import MilestoneEditor from './MilestoneEditor'
   import PictureUploader from './PictureUploader'
   import AuthFactory from '../factories/Auth'
@@ -234,7 +234,7 @@
 
     components: {
       'circular-image': CircularImage,
-      'count-up': CountUpTable,
+      'count-up-min': CountUpMinimal,
       'count-up-hor': CountUpHorizontal,
       'milestone-editor': MilestoneEditor,
       'picture-uploader': PictureUploader

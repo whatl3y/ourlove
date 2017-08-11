@@ -4,11 +4,11 @@
   "description": "Time capsule information and memories for relationships.",
   "main": "forever.js",
   "engines": {
-    "node": "8.2.1"
+    "node": "8.3.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/useriq-app/useriq-bigdata-stream.git"
+    "url": "https://github.com/whatl3y/ourloveio.git"
   },
   "scripts": {
     "dev": "nodemon --exec 'nf start'",

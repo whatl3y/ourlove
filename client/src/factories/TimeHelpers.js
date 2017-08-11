@@ -5,6 +5,10 @@ export default {
     return moment.utc(timestamp).format(format)
   },
 
+  getTimeDifferenceFromUnits(dateStart, dateEnd=moment.utc(), units='days') {
+    return moment.utc(dateEnd).diff(moment.utc(dateStart), units)
+  },
+
   getTimeDifferenceObj(dateStart, dateEnd=moment().toDate(), calculateNegativeDiff=false) {
     if (typeof dateStart === 'undefined') return false
 

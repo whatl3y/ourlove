@@ -750,10 +750,10 @@ export default class ImageHelpers {
       if (shouldMirror)
         finalLwipImage = await this.mirror('y', rotatedLwipImage)
 
-      return finalLwipImage
+      return {lwipImg: finalLwipImage , exif: exifData}
 
     } else {
-      return lwipImage
+      return {lwipImg: lwipImage}
     }
   }
 
