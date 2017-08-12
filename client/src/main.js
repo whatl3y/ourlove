@@ -13,6 +13,7 @@ import Toastr from 'vue-toastr'
 import Dropzone from 'vue2-dropzone'
 import Datepicker from './components/Datepicker'
 import FormRequiredInput from './components/FormRequiredInput'
+import HorizontalTimeline from './components/HorizontalTimeline'
 import ZigzagTimeline from './components/ZigzagTimeline'
 
 // css
@@ -33,7 +34,8 @@ Vue.component('vue-toastr', Toastr)
 Vue.component('datepicker', Datepicker)
 Vue.component('Dropzone', Dropzone)
 Vue.component('FormRequiredInput', FormRequiredInput)
-Vue.component('Timeline', ZigzagTimeline)
+Vue.component('HorTimeline', HorizontalTimeline)
+Vue.component('ZigzagTimeline', ZigzagTimeline)
 
 Vue.config.productionTip = false
 

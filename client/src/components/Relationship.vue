@@ -35,7 +35,7 @@
           circular-image(v-for="image in nonPrimaryImages",:key="image.id",:img="image",:size="100")
       div.col-12(v-if="formattedRelationshipMilestones.length > 0")
         h1 Events &amp; Milestones
-        timeline(:events="formattedRelationshipMilestones")
+        zigzag-timeline(:events="formattedRelationshipMilestones")
     div(v-if="editMode")
       b-tabs(card,ref="edit-tabs",v-model="editTabIndex")
         b-tab(title="Main Info")

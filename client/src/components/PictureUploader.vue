@@ -94,7 +94,6 @@
         this.setInternalIntegrationImageFetchState(response, this.activeTab)
 
         this.pictureLoading = false
-        console.log('images fetched', this.integrationsImageFetchMap)
       },
 
       getLandscapeOrPortrait(width, height, typeToConfirm) {

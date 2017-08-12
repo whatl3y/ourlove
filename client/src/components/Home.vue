@@ -15,8 +15,9 @@
           div BEAUTIFUL
     div.container.margin-top-md
       div.text-center Create your relationship page now!
-    div.container(v-if="events.length")
-      timeline(:events="events")
+    div.container
+      hor-timeline(:events="events")
+      zigzag-timeline(:events="events")
 </template>
 
 <script>
@@ -27,8 +28,10 @@
     data () {
       return {
         events: [
-        //   { imageSrc: "lance_face_1501624513397.png", title: 'Event 1', subtitle: 'This is my subtitle....', timestamp: '2017-01-01 12:00:00', body: new Array(Math.ceil(Math.random() * 10)).fill('in the body bro....').join('|') },
-        //   { imageSrc: "lance_face_1501624513397.png", title: 'Event 2', subtitle: 'This is my subtitle....', body: new Array(Math.ceil(Math.random() * 10)).fill('in the body bro....').join('|') }
+          { badgeColor: 'danger', icon: 'fa-close', imageSrc: "lance_face_1501624513397.png", title: 'Event 1', subtitle: 'This is my subtitle....', timestamp: '2017-01-01 12:00:00', body: new Array(Math.ceil(Math.random() * 10)).fill('in the body bro....').join('|') },
+          { badgeColor: 'dark', imageSrc: "lance_face_1501624513397.png", title: 'Event 2', subtitle: 'This is my subtitle....', timestamp: '2012-05-01 12:00:00', body: new Array(Math.ceil(Math.random() * 10)).fill('in the body bro....').join('|') },
+          { imageSrc: "lance_face_1501624513397.png", title: 'Event 3', subtitle: 'This is my subtitle....', timestamp: '2009-05-01 12:00:00', body: new Array(Math.ceil(Math.random() * 10)).fill('in the body bro....').join('|') },
+          { imageSrc: "lance_face_1501624513397.png", title: 'Event 4', subtitle: 'This is my subtitle....', timestamp: '2005-05-01 12:00:00', body: new Array(Math.ceil(Math.random() * 10)).fill('in the body bro....').join('|') }
         ]
       }
     },

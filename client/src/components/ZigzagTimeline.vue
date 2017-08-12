@@ -25,11 +25,11 @@
   import TimeHelpers from '../factories/TimeHelpers'
 
   export default {
-    name: 'home',
+    name: 'zigzag-timeline',
     props: ['events', 'format'],
     methods: {
       getFormattedDate: TimeHelpers.getFormattedDate,
-      
+
       getLandscapeOrPortrait(typeToConfirm, orientation='portrait') {
         return typeToConfirm == orientation
       },
