@@ -19,13 +19,13 @@
         h2 that last forever
         div.d-flex.margin-vertical-lg.justify-content-center
           div.col
-            i.fa.fa-5x.fa-heart-o
+            i.fa.fa-4x.fa-heart-o
           div.col
-            i.fa.fa-5x.fa-heart
+            i.fa.fa-4x.fa-heart
           div.col
-            i.fa.fa-5x.fa-heartbeat
+            i.fa.fa-4x.fa-heartbeat
           div.col
-            i.fa.fa-5x.fa-heart-o
+            i.fa.fa-4x.fa-heart-o
     div.gray-bg
       div.container.padding-md
         h1

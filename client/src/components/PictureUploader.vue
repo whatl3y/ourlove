@@ -1,7 +1,7 @@
 <template lang="pug">
   b-card.dark.thick-2x
     div.row
-      div.col-3.col-xs-6
+      div.col-sm-12.col-md-3
         b-list-group
           b-list-group-item.clicker(:class="{ active: isActiveTab('upload') }")
             a(href="javascript:void(0)",@click="setActiveTab('upload')") Upload Images

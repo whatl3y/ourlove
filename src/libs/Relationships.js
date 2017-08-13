@@ -202,7 +202,7 @@ export default class Relationships {
         returning id
       `, [
         parseInt(relationshipId),
-        parseInt(milestone.image_id),
+        (milestone.image_id) ? parseInt(milestone.image_id) : null,
         milestone.milestone_time,
         milestone.title,
         milestone.subtitle,
