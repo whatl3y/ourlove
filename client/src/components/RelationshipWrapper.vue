@@ -35,6 +35,7 @@
   import AuthFactory from '../factories/Auth'
   import RelationshipsFactory from '../factories/Relationships'
   import Relationship from './Relationship'
+  import StringHelpers from '../factories/StringHelpers'
 
   export { RelationshipWrapper as default }
 
@@ -103,6 +104,12 @@
     },
 
     async created() {
+      const [ name1, name2 ] = this.relationship_id.split('and')
+      if (name2) {
+        this.newRelationship.p1name = StringHelpers.titleCase(name1)
+        this.newRelationship.p2name = StringHelpers.titleCase(name2.replace(/\d/g, ''))
+      }
+
       const responses = await Promise.all([
         AuthFactory.isLoggedIn(),
         AuthFactory.setReturnTo(this.relationship_id),

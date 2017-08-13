@@ -2,10 +2,14 @@ import moment from 'moment'
 
 export default {
   getFormattedDate(timestamp, format="MMMM Do, YYYY") {
-    return moment.utc(timestamp).format(format)
+    //'MMMM Do, YYYY h:mm a' ex: August 11th, 2017 4:00 pm
+    if (timestamp)
+      return moment.utc(timestamp).format(format)
+    return null
   },
 
   getTimeDifferenceFromUnits(dateStart, dateEnd=moment.utc(), units='days') {
+    dateEnd = dateEnd || moment.utc()
     return moment.utc(dateEnd).diff(moment.utc(dateStart), units)
   },
 
@@ -34,5 +38,9 @@ export default {
       minutes:  duration.minutes(),
       seconds:  duration.seconds()
     }
+  },
+
+  getTimeFromNow(time) {
+    return moment.utc(time).fromNow()
   }
 }

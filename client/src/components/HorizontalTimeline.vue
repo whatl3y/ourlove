@@ -34,16 +34,13 @@
     props: ['events'],
     methods: {
       getFormattedDate: TimeHelpers.getFormattedDate,
+      getTimeFromNow: TimeHelpers.getTimeFromNow,
 
       eventBodyStyle(bodyString) {
         if (bodyString && bodyString.length >= 160)
           return {'font-size': '0.8em'}
 
         return {}
-      },
-
-      getTimeFromNow(time) {
-        return moment.utc(time).fromNow()
       },
 
       getBadgeColorClass(ev) {

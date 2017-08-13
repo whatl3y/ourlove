@@ -41,6 +41,10 @@
         b-tab(title="Main Info")
           div.row
             div.col-md-6.offset-md-3
+              h2 Your Relationship URL
+              b-card.text-center.margin-vertical-lg
+                div.card-text {{ getFullUrl() }}
+              hr
               h2 Required Info
               form-required-input(v-model="relationship.person1_name",label="First Person's Name")
               form-required-input(v-model="relationship.person2_name",label="Second Person's Name")
@@ -75,12 +79,14 @@
                         small Uploaded {{ getFormattedDate(image.created_at) }}
                   div.card-text
                     datepicker(label="Image Taken",placeholder="Select Date...",v-model="image.image_taken",@changedWithKey="updatePicture(image)")
+                    b-form-checkbox#primary-image(v-model="image.relationship_primary_image",@change="updatePicture(image, true)") Is Primary Image?
                   div.text-center
                     - //b-button.margin-right-sm(size="sm",@click="updatePicture(image)") Update
                     b-button(size="sm",variant="danger",@click="deletePicture(image.id)") Delete
         b-tab(title="Events &amp; Milestones")
           milestone-editor(:id="id",:milestones="relationshipMilestones",:images="relationshipImages",@successUpdate="milestoneAddedOrUpdated",@successDelete="milestoneDeleted")
         b-tab(title="Reminders")
+          reminder-editor(:id="id",:milestones="relationshipMilestones",:reminders="relationshipReminders",@successUpdate="relationshipsAddedOrUpdated",@successDelete="reminderDeleted")
         - //b-tab(title="Diary")
 </template>
 
@@ -91,6 +97,7 @@
   import CountUpMinimal from './CountUpMinimal'
   import MilestoneEditor from './MilestoneEditor'
   import PictureUploader from './PictureUploader'
+  import ReminderEditor from './ReminderEditor'
   import AuthFactory from '../factories/Auth'
   import RelationshipsFactory from '../factories/Relationships'
   import ImageHelpers from '../factories/ImageHelpers'
@@ -115,6 +122,9 @@
     },
 
     methods: {
+      getFormattedDate: TimeHelpers.getFormattedDate,
+      getImageSrc: ImageHelpers.getImageSrc,
+
       openSnackbar(message, type='success') {
         const functionTypeMap = {
           success:  's',
@@ -123,17 +133,21 @@
         return this.$root.$refs.toastr[functionTypeMap[type] || 's'](message)
       },
 
-      getImageSrc: ImageHelpers.getImageSrc,
-
       updateEditMode() {
         this.editMode = !this.editMode
       },
 
       successfullyAddedPicture(file, response) {
-        if (response instanceof Array)
+        if (response instanceof Array) {
+          response = response.map(img => {
+            img.relationship_primary_image = null
+            return img
+          })
           this.relationshipImages = this.relationshipImages.concat(response)
-        else
+        } else {
+          response.relationship_primary_image = null
           this.relationshipImages.push(response)
+        }
         this.openSnackbar('Successfully added picture!')
         this.setAllImages()
       },
@@ -142,7 +156,9 @@
         return moment.utc(timestamp).format('MMMM YYYY')
       },
 
-      getFormattedDate: TimeHelpers.getFormattedDate,
+      getFullUrl() {
+        return location.href
+      },
 
       setAllImages() {
         const primaryImages   = this.relationshipImages.filter(img => img.relationship_primary_image)
@@ -179,10 +195,22 @@
         }
       },
 
-      async updatePicture(image, clear=false) {
+      async updatePicture(image, primaryChange=false) {
         try {
-          if (clear || image.image_taken) {
-            const response = await RelationshipsFactory.updatePictureTakenDate(image.id, image.image_taken)
+          if (image.image_taken || primaryChange) {
+            const response = await RelationshipsFactory.updatePicture(image.id, {
+              image_taken:                image.image_taken,
+              relationship_primary_image: image.relationship_primary_image
+            })
+
+            if (primaryChange && image.relationship_primary_image) {
+              this.relationshipImages = this.relationshipImages.map(i => {
+                if (i.id != image.id)
+                  i.relationship_primary_image = null
+                return i
+              })
+            }
+
             this.openSnackbar('Successfully updated picture!')
           }
 
@@ -206,6 +234,10 @@
       },
 
       milestoneAddedOrUpdated(milestone) {
+        if (milestone.NEW) {
+          this.relationshipMilestones.splice(0, 1)
+          delete(milestone.NEW)
+        }
         this.relationshipMilestones.push(milestone)
         this.setMilestones()
         this.openSnackbar('Successfully updated milestone!')
@@ -215,6 +247,14 @@
         this.relationshipMilestones = this.relationshipMilestones.filter(m => m.id != milestoneId)
         this.setMilestones()
         this.openSnackbar('Successfully deleted milestone!')
+      },
+
+      relationshipsAddedOrUpdated(reminder) {
+        this.openSnackbar('Successfully updated reminder.')
+      },
+
+      reminderDeleted(reminder) {
+        this.openSnackbar('Successfully deleted reminder.')
       }
     },
 
@@ -222,12 +262,14 @@
       const responses = await Promise.all([
         AuthFactory.isRelationshipAdmin(this.id),
         RelationshipsFactory.getImages(this.id),
-        RelationshipsFactory.getMilestones(this.id)
+        RelationshipsFactory.getMilestones(this.id),
+        RelationshipsFactory.getReminders(this.id)
       ])
 
       this.isRelationshipAdmin    = responses[0]
       this.relationshipImages     = responses[1]
       this.relationshipMilestones = responses[2]
+      this.relationshipReminders  = responses[3]
       this.setAllImages()
       this.setMilestones()
     },
@@ -237,7 +279,8 @@
       'count-up-min': CountUpMinimal,
       'count-up-hor': CountUpHorizontal,
       'milestone-editor': MilestoneEditor,
-      'picture-uploader': PictureUploader
+      'picture-uploader': PictureUploader,
+      'reminder-editor': ReminderEditor
     }
   }
 </script>

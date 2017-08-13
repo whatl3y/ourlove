@@ -101,8 +101,18 @@ export default async function Api(req, res) {
         const record        = await relationship.getByPath()
 
         switch(command) {
+          case 'get_relationships':
+            const relationships = await relationship.getRelationshipsByColumn({created_at: 'desc'}, 10)
+            return res.json({relationships: relationships})
+            break
+
           case 'get':
             return res.json({relationship: record})
+
+          case 'check_for_page':
+            const [name1, name2] = info.slice(1).split('/')
+            const newPath = await relationship.getOpenPageFromNames(name1, name2)
+            return res.send(newPath)
 
           case 'get_images':
             const images = await relationship.getImages()
@@ -111,6 +121,10 @@ export default async function Api(req, res) {
           case 'get_milestones':
             const milestones = await relationship.getMilestones()
             return res.json(milestones)
+
+          case 'get_reminders':
+          const reminders = await relationship.getReminders()
+          return res.json(reminders)
 
           case 'create':
             if (record)
@@ -125,7 +139,17 @@ export default async function Api(req, res) {
             return res.json({id: existingRelationshipId})
 
           case 'update_picture':
-            await relationship.updatePicture({image_taken: body.image_taken}, body.id)
+            await relationship.updatePicture(body.object, body.id)
+            if (body.object.relationship_primary_image) {
+              const { rows } = await relationship.postgres.query(`select relationships_id from relationships_images where id = $1`, [body.id])
+              await relationship.postgres.query(`
+                update relationships_images
+                set relationship_primary_image = null
+                where
+                  relationships_id = $1 and
+                  id <> $2
+              `, [rows[0].relationships_id, body.id])
+            }
             return res.sendStatus(200)
 
           case 'delete_picture':
@@ -145,6 +169,19 @@ export default async function Api(req, res) {
             // The 'info' piece of the URL will come across as '/<ID>', so
             // need to strip off the initial backslash
             await relationship.deleteMilestone(parseInt(info.slice(1)))
+            return res.sendStatus(200)
+
+          case 'update_reminder':
+            const newReminder  = body.reminder
+            let reminderId     = newReminder.id
+
+            reminderId = await relationship.updateReminder(newReminder, reminderId, record.id)
+            return res.json({id: reminderId})
+
+          case 'delete_reminder':
+            // The 'info' piece of the URL will come across as '/<ID>', so
+            // need to strip off the initial backslash
+            await relationship.deleteReminder(parseInt(info.slice(1)))
             return res.sendStatus(200)
 
           case 'file_upload':

@@ -8,13 +8,38 @@ export default class Relationships {
     this.postgres = options.postgres || new PostgresClient()
   }
 
+  async getOpenPageFromNames(name1, name2, attempt=0) {
+    let pathToTry = `/${name1.toLowerCase()}and${name2.toLowerCase()}`
+    if (attempt > 0)
+      pathToTry += attempt
+
+    const { rows } = await this.postgres.query('select * from relationships where path = $1', [pathToTry])
+    if (rows.length > 0)
+      return await this.getOpenPageFromNames(name1, name2, attempt+1)
+
+    return pathToTry
+  }
+
+  async getRelationshipsByColumn(orderByColumnAndDirection, limit=10, offset=0) {
+    const column = Object.keys(orderByColumnAndDirection)[0]
+    const direction = orderByColumnAndDirection[column] || 'desc'
+    const { rows } = await this.postgres.query(`
+      select i.main_image_name, i.small_image_name, r.* from relationships as r
+      left outer join relationships_images as i on i.relationships_id = r.id and i.relationship_primary_image is true
+      order by r.${column} ${direction}
+      limit ${limit}
+      offset ${offset}
+    `)
+    return rows
+  }
+
   async get(id=this.id) {
-    const records = await this.postgres.query(`
+    const { rows } = await this.postgres.query(`
       select * from relationships
       where id = $1
     `, [id])
-    if (records && records.rows.length)
-      return records.rows[0]
+    if (rows.length)
+      return rows[0]
     return null
   }
 
@@ -55,6 +80,16 @@ export default class Relationships {
       inner join relationships as r on r.id = m.relationships_id
       where r.path = $1
       order by m.milestone_time, m.created_at
+    `, [path])
+    return rows
+  }
+
+  async getReminders(path=this.path) {
+    const { rows } = await this.postgres.query(`
+      select m.title, m.milestone_time, r.relationship_started, r.relationship_married, rem.* from relationship_reminders as rem
+      inner join relationships as r on r.id = rem.relationships_id
+      left outer join relationship_milestones as m on m.id = rem.milestone_id
+      where r.path = $1
     `, [path])
     return rows
   }
@@ -137,6 +172,7 @@ export default class Relationships {
   }
 
   async updateMilestone(milestone, milestoneId=null, relationshipId=null) {
+    let results
     if (milestoneId) {
       const updateableColumns = ['image_id', 'milestone_time', 'title', 'subtitle', 'description']
       let queryAry = ['update relationship_milestones set']
@@ -156,9 +192,9 @@ export default class Relationships {
       paramsAry.push(milestoneId)
 
       const queryString = queryAry.concat(['returning id']).join(' ')
-      return await this.postgres.query(queryString, paramsAry)
+      results = await this.postgres.query(queryString, paramsAry)
     } else {
-      return await this.postgres.query(`
+      results = await this.postgres.query(`
         insert into relationship_milestones
         (relationships_id, image_id, milestone_time, title, subtitle, description)
         values
@@ -173,9 +209,59 @@ export default class Relationships {
         milestone.description
       ])
     }
+
+    if (results && results.rows.length > 0) return results.rows[0].id
+    return null
   }
 
   async deleteMilestone(id) {
     await this.postgres.query(`delete from relationship_milestones where id = $1`, [id])
+  }
+
+  async updateReminder(reminder, reminderId=null, relationshipId=null) {
+    let results
+    if (reminderId) {
+      const updateableColumns = ['relationships_id', 'milestone_id', 'reminder_type', 'days_before_milestone_to_remind', 'emails', 'is_active']
+      let queryAry = ['update relationship_reminders set']
+      let paramsAry = []
+      let paramIndTracker = 1
+
+      Object.keys(reminder).forEach(key => {
+        if (updateableColumns.indexOf(key) > -1) {
+          queryAry.push(`${key} = $${paramIndTracker},`)
+          paramsAry.push(reminder[key])
+          paramIndTracker++
+        }
+      })
+
+      queryAry.push('updated_at = now()')
+      queryAry.push(`where id = $${paramIndTracker}`)
+      paramsAry.push(reminderId)
+
+      const queryString = queryAry.concat(['returning id']).join(' ')
+      results = await this.postgres.query(queryString, paramsAry)
+    } else {
+      results = await this.postgres.query(`
+        insert into relationship_reminders
+        (relationships_id, milestone_id, reminder_type, days_before_milestone_to_remind, emails, is_active)
+        values
+        ($1, $2, $3, $4, $5, $6)
+        returning id
+      `, [
+        parseInt(relationshipId),
+        (reminder.milestone_id) ? parseInt(reminder.milestone_id) : null,
+        reminder.reminder_type,
+        reminder.days_before_milestone_to_remind,
+        reminder.emails,
+        true
+      ])
+    }
+
+    if (results && results.rows.length > 0) return results.rows[0].id
+    return null
+  }
+
+  async deleteReminder(id) {
+    await this.postgres.query(`delete from relationship_reminders where id = $1`, [id])
   }
 }

@@ -11,6 +11,7 @@
 
 <script>
   import ImageHelpers from '../factories/ImageHelpers'
+  import TimeHelpers from '../factories/TimeHelpers'
 
   export default {
     props: ['img', 'orientation', 'size'],
@@ -21,6 +22,7 @@
       }
     },
     methods: {
+      getFormattedDate: TimeHelpers.getFormattedDate,
       getImageSrc: ImageHelpers.getImageSrc,
       getOrientationClass(img) {
         if (this.orientation)

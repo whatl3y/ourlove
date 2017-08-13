@@ -176,6 +176,7 @@ async function createRelationshipReminders(postgres) {
       is_active boolean,
       reminder_type varchar(255),
       days_before_milestone_to_remind integer,
+      emails text,
       created_at timestamp(6) without time zone NOT NULL DEFAULT now(),
       updated_at timestamp(6) without time zone NOT NULL DEFAULT now()
     );
