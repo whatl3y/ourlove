@@ -13,7 +13,7 @@
           div LOVE
           div IS
           div BEAUTIFUL
-    div.btn-ourlove-dark.padding-vertical-xlg
+    div.dark-gradient-reverse.padding-vertical-xlg(style="border-top: 2px solid #b72168; border-bottom: 2px solid #b72168")
       div.container.text-center
         div.display-4 Create Memories
         h2 that last forever
@@ -33,7 +33,7 @@
         div.row
           div.col-sm-12.col-md-6.margin-bottom-lg
             b-card.d-flex.flex-column.justify-content-center(title="Create Relationship Page")
-              div What are your and your sig other, mom, dad, pet, or sibling's names?
+              div What are you and your sig other, mom, dad, pet, or sibling's names?
               form-required-input(label="First Person's Name",v-model="newPage.p1Name")
               form-required-input(label="Second Person's Name",v-model="newPage.p2Name")
               div.text-center

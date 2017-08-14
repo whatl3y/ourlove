@@ -1,5 +1,5 @@
 <template lang="pug">
-  div.top-nav-container
+  div.top-nav-container.dark-gradient
     div.container
       b-navbar(toggleable,type="inverse")
         b-nav-toggle(target="navbarNavDropdown")

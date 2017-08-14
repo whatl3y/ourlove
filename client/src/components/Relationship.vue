@@ -28,7 +28,8 @@
       div.col(v-if="relationship.relationship_started || relationship.relationship_married")
         count-up-hor(:timestamp="relationship.relationship_started",title="Their relationship started")
         - //hr(v-if="relationship.relationship_married")
-        count-up-min.margin-top-xlg(:timestamp="relationship.relationship_married",title="They got married")
+        count-up-min.margin-top-xlg(v-if="relationship.relationship_started",:timestamp="relationship.relationship_married",title="They got married")
+        count-up-hor.margin-top-xlg(v-if="!relationship.relationship_started",:timestamp="relationship.relationship_married",title="They got married")
       hr.col-12.margin-top-lg
       div.col-12(v-if="nonPrimaryImages.length >= 20")
         div.d-flex.flex-row.flex-wrap.justify-content-center
@@ -157,7 +158,7 @@
       },
 
       getFullUrl() {
-        return location.href
+        return `${location.protocol}//${location.host}${location.pathname}`
       },
 
       setAllImages() {

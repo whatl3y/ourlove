@@ -1,3 +1,4 @@
+$xtra_dark_color: #410015;
 $dark_color:      #740037;
 $main_color:      #b72168;
 $secondary_color: #21b729;
@@ -64,6 +65,16 @@ a {
   }
 }
 
+.dark-gradient {
+  background: linear-gradient(45deg, $dark_color, $xtra_dark_color);
+  color: #ffffff;
+}
+
+.dark-gradient-reverse {
+  background: linear-gradient(45deg, $xtra_dark_color, $dark_color);
+  color: #ffffff;
+}
+
 .gray {
   color: $gray;
 }
@@ -83,7 +94,6 @@ a {
 }
 
 .top-nav-container {
-  background: $dark_color;
   border-bottom: 2px solid $main_color;
   color: #ffffff;
   padding: 2px;
