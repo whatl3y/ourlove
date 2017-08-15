@@ -1,11 +1,14 @@
 <template lang="pug">
   div
-    h1 Configure Reminders
-    p.
-      Want to get reminded a month before the anniversary of your relationship starting,
-      or for your marriage anniversary? Or maybe you want to be notified when you
-      went on your first Europe trip together 5 years ago.
-    p Reminders can be configured to send you e-mails notifying you when you want!
+    h2 Configure Reminders
+    b-card.margin-bottom-md(style="background:#f6f6f6")
+      p
+        small.
+          Want to get reminded a month before the anniversary of your relationship starting,
+          or for your marriage anniversary? Or maybe you want to be notified when you
+          went on your first Europe trip together 5 years ago.
+      p
+        small Reminders can be configured to send you e-mails notifying you when you want!
     div.text-center
       a.margin-bottom-md(href="javascript:void(0)",@click="mutableReminders.unshift({NEW: true, reminder_type:'milestone', days_before_milestone_to_remind:30, emails:getInitialEmail()})")
         i.fa.fa-3x.fa-plus-square

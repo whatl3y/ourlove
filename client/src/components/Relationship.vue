@@ -38,13 +38,21 @@
         h1 Events &amp; Milestones
         zigzag-timeline(:events="formattedRelationshipMilestones")
     div(v-if="editMode")
-      b-tabs(card,ref="edit-tabs",v-model="editTabIndex")
+      b-tabs(small,card,ref="edit-tabs",v-model="editTabIndex")
         b-tab(title="Main Info")
           div.row
             div.col-md-6.offset-md-3
               h2 Your Relationship URL
-              b-card.text-center.margin-vertical-lg
-                div.card-text {{ getFullUrl() }}
+              b-card.margin-vertical-lg
+                div.card-text
+                  div.text-right(style="font-size:8px")
+                    a(href="javascript:void(0)",@click="urlChangeMode = !urlChangeMode")
+                      i {{ (urlChangeMode) ? "cancel change" : "change" }}
+                  div.text-center(v-if="!urlChangeMode") {{ getFullUrl() }}
+                  div(v-if="urlChangeMode")
+                    form-required-input(v-model="newUrl",label="New Relationshipship Page Path",placeholder="/mynewrelationshippath")
+                    div.text-center
+                      b-button.btn-ourlove(@click="changeRelationshipPath()") Change Page URL
               hr
               h2 Required Info
               form-required-input(v-model="relationship.person1_name",label="First Person's Name")
@@ -61,7 +69,7 @@
               hr
               div.text-center
                 b-button.btn-ourlove-dark(size="lg",v-on:click="updateRelationship()") Update Relationship
-        b-tab(title="Relationship Pictures")
+        b-tab(title="Pictures")
           picture-uploader(:id="id",@success="successfullyAddedPicture")
           div.row.margin-top-md
             h5.col Current Images
@@ -84,11 +92,12 @@
                   div.text-center
                     - //b-button.margin-right-sm(size="sm",@click="updatePicture(image)") Update
                     b-button(size="sm",variant="danger",@click="deletePicture(image.id)") Delete
-        b-tab(title="Events &amp; Milestones")
+        b-tab(title="Milestones")
           milestone-editor(:id="id",:milestones="relationshipMilestones",:images="relationshipImages",@successUpdate="milestoneAddedOrUpdated",@successDelete="milestoneDeleted")
         b-tab(title="Reminders")
           reminder-editor(:id="id",:milestones="relationshipMilestones",:reminders="relationshipReminders",@successUpdate="relationshipsAddedOrUpdated",@successDelete="reminderDeleted")
-        - //b-tab(title="Diary")
+        b-tab(title="Admin")
+          h2 Page Administrators
 </template>
 
 <script>
@@ -113,6 +122,8 @@
       return {
         isRelationshipAdmin:      false,
         editMode:                 false,
+        urlChangeMode:            false,
+        newUrl:                   null,
         editTabIndex:             0,
         relationshipImages:       [],
         primaryImage:             null,
@@ -136,6 +147,20 @@
 
       updateEditMode() {
         this.editMode = !this.editMode
+      },
+
+      async changeRelationshipPath() {
+        if (!this.newUrl)
+          return this.openSnackbar('Enter a new path to try and change it.', 'error')
+
+        if (this.newUrl.indexOf('/') === 0)
+          this.newUrl = this.newUrl.replace(/(\/+)(.+)/, '$2')
+        const response = await RelationshipsFactory.changePagePath(this.id, this.newUrl)
+        if (response.error)
+          return this.openSnackbar(response.error, 'error')
+
+        this.openSnackbar('Successfully changed path! Redirecting you to the new path now...')
+        location.href = `${location.protocol}//${location.host}/${this.newUrl}`
       },
 
       successfullyAddedPicture(file, response) {

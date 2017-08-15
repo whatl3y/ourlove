@@ -9,13 +9,16 @@
             a(href="javascript:void(0)",@click="setActiveTab('facebook')") Facebook Images
           b-list-group-item.clicker(:class="{ active: isActiveTab('instagram') }")
             a(href="javascript:void(0)",@click="setActiveTab('instagram')") Instagram Images
+        hr.hidden-md-up
       div.col
         div(v-if="isActiveTab('upload')")
           div.text-center(v-if="pictureLoading")
             i.fa.fa-4x.fa-spinner.fa-spin
           div(v-if="!pictureLoading")
             h3 Upload New Images
-            dropzone#relationship-pictures(ref="relationship-pictures",acceptedFileTypes="image/*",:clickable="true",:language="{dictDefaultMessage:'<br>Click or drag images here to upload them!'}",:url="'/api/v1.0/relationships/file_upload/' + id",@vdropzone-success="successfullyAddedPicture")
+            div.text-center.margin-bottom-sm
+              b-button#upload-file-btn.btn-ourlove Click Here to Upload Picture
+            dropzone#relationship-pictures.hidden-sm-down(ref="relationship-pictures",acceptedFileTypes="image/*",clickable="#upload-file-btn",:language="{dictDefaultMessage:'<br>Drag images here to upload them!'}",:url="'/api/v1.0/relationships/file_upload/' + id",@vdropzone-success="successfullyAddedPicture")
         div.text-center.loading-container(v-if="pictureLoading")
           i.fa.fa-4x.fa-spinner.fa-spin
         div.col(v-if="!pictureLoading")

@@ -109,6 +109,18 @@ export default async function Api(req, res) {
           case 'get':
             return res.json({relationship: record})
 
+          case 'change_page_url':
+            const splitData     = info.slice(1).split('/')
+            const existingPath  = `/${splitData[0]}`
+            const newPagePath   = `/${splitData[1]}`
+
+            const doesPathHavePageAlready = await relationship.getByPath(newPagePath)
+            if (doesPathHavePageAlready)
+              return res.status(400).json({error: `The path provided, ${newPagePath}, already exists on another page. Please try another path.`})
+
+            await relationship.update({path: newPagePath}, existingPath)
+            return res.json(true)
+
           case 'check_for_page':
             const [name1, name2] = info.slice(1).split('/')
             const newPath = await relationship.getOpenPageFromNames(name1, name2)

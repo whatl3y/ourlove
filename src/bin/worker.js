@@ -67,17 +67,20 @@ function startApp() {
   multiWorker.on('start',           (workerId) => log.debug("worker["+workerId+"] started"))
   multiWorker.on('end',             (workerId) => log.info("worker["+workerId+"] ended"))
   multiWorker.on('cleaning_worker', (workerId, worker, pid) => log.debug("cleaning old worker " + worker))
-  multiWorker.on('poll',            (workerId, queue) => log.debug("worker["+workerId+"] polling " + queue))
+  // NOISY
+  // multiWorker.on('poll',            (workerId, queue) => log.debug("worker["+workerId+"] polling " + queue))
   multiWorker.on('job',             (workerId, queue, job) => log.info("worker["+workerId+"] working job " + queue + " " + printObject(job)))
   multiWorker.on('reEnqueue',       (workerId, queue, job, plugin) => log.info("worker["+workerId+"] reEnqueue job (" + printObject(plugin) + ") " + queue + " " + printObject(job)))
   multiWorker.on('success',         (workerId, queue, job, result) => log.info("worker["+workerId+"] job success " + queue + " " + printObject(job) + " >> " + printObject(result)))
   multiWorker.on('failure',         (workerId, queue, job, failure) => log.error("worker["+workerId+"] job failure " + queue + " " + printObject(job) + " >> " + printObject(failure)))
   multiWorker.on('error',           (workerId, queue, job, error) => log.error("worker["+workerId+"] error " + queue + " " + printObject(job) + " >> " + printObject(error)))
-  multiWorker.on('pause',           (workerId) => log.debug("worker["+workerId+"] paused"))
+  // NOISY
+  // multiWorker.on('pause',           (workerId) => log.debug("worker["+workerId+"] paused"))
 
   // multiWorker emitters
   multiWorker.on('internalError',     (error) => log.error(error))
-  multiWorker.on('multiWorkerAction', (verb, delay) => log.debug("*** checked for worker status: " + verb + " (event loop delay: " + delay + "ms)"))
+  // NOISY
+  // multiWorker.on('multiWorkerAction', (verb, delay) => log.debug("*** checked for worker status: " + verb + " (event loop delay: " + delay + "ms)"))
 
   scheduler.on('start',             function(){ log.debug("scheduler started") })
   scheduler.on('end',               function(){ log.info("scheduler ended") })

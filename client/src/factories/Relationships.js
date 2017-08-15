@@ -24,6 +24,11 @@ export default {
     return response.json()
   },
 
+  async changePagePath(currentPath, newPath) {
+    const response = await ourloveFetch(`/api/v1.0/relationships/change_page_url/${currentPath}/${newPath}`)
+    return response.json()
+  },
+
   async checkForOpenPage(name1, name2) {
     const response = await ourloveFetch(`/api/v1.0/relationships/check_for_page/${name1}/${name2}`)
     return response.text()

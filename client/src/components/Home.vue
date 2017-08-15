@@ -17,14 +17,14 @@
       div.container.text-center
         div.display-4 Create Memories
         h2 that last forever
-        div.d-flex.margin-vertical-lg.justify-content-center
-          div.col
+        div.row.d-flex.margin-vertical-lg.justify-content-center
+          div.col-sm-6.col-md
             i.fa.fa-4x.fa-heart-o
-          div.col
+          div.col-sm-6.col-md
             i.fa.fa-4x.fa-heart
-          div.col
+          div.col-sm-6.col-md
             i.fa.fa-4x.fa-heartbeat
-          div.col
+          div.col-sm-6.col-md
             i.fa.fa-4x.fa-heart-o
     div.gray-bg
       div.container.padding-md
