@@ -19,8 +19,12 @@ export default new VueRouter({
     { path: '/oauth/*', component: ReloadPage },
     { path: '/redirect', component: ReloadPage },
     {
+      path: '/:relationship_id*/edit',
+      component: RelationshipWrapper,
+      props: route => ({ relationship_id: route.params.relationship_id, edit: true })
+    },
+    {
       path: '/:relationship_id*',
-      name: 'RelationshipWrapper',
       component: RelationshipWrapper,
       props: true
     }

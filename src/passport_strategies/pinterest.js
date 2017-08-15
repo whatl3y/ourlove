@@ -7,7 +7,6 @@ const PinterestStrategy = passport_pinterest.OAuth2Strategy
 
 export default function PinterestPassportStrategy(postgresClient) {
   return {
-    BUILTIN:  true,
     strategy:   PinterestStrategy,
     condition:  !!config.pinterest.appId,
     options: {

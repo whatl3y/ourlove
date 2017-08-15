@@ -7,7 +7,6 @@ const InstagramStrategy = passport_instagram.Strategy
 
 export default function InstagramPassportStrategy(postgresClient) {
   return {
-    BUILTIN:    true,
     strategy:   InstagramStrategy,
     condition:  !!config.instagram.appId,
     options: {

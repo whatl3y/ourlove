@@ -15,13 +15,14 @@ const log = bunyan.createLogger(config.logger.options)
 
 export default async function Api(req, res) {
   try {
-    const auth      = new Auth({postgres: postgres, session: req.session})
-
     const body      = req.body
     const version   = req.params.version
     const namespace = req.params.namespace
     const command   = req.params.command
     const info      = req.params[0]
+
+    const auth          = new Auth({postgres: postgres, session: req.session})
+    const relationship  = new Relationships({postgres: postgres, path: info})
 
     switch(namespace) {
       case 'auth':
@@ -37,6 +38,14 @@ export default async function Api(req, res) {
             req.session.returnTo = info
             req.session.save()
             return res.sendStatus(200)
+
+          case 'get_relationships':
+            const userId = auth.getLoggedInUsersId()
+            if (!userId)
+              return res.json([])
+
+            const relationshipsUserManages = await relationship.getRelationshipsByUserId(userId)
+            return res.json(relationshipsUserManages)
 
           case 'integrations':
             if (!auth.isLoggedIn())
@@ -97,7 +106,6 @@ export default async function Api(req, res) {
         break
 
       case 'relationships':
-        const relationship  = new Relationships({postgres: postgres, path: info})
         const record        = await relationship.getByPath()
 
         switch(command) {
@@ -108,6 +116,10 @@ export default async function Api(req, res) {
 
           case 'get':
             return res.json({relationship: record})
+
+          case 'get_admin_users':
+            const usersWhoManageRelationship = await relationship.getAdminUsersByPath()
+            return res.json(usersWhoManageRelationship)
 
           case 'change_page_url':
             const splitData     = info.slice(1).split('/')

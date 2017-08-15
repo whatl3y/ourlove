@@ -9,6 +9,11 @@ export default {
     return response.json()
   },
 
+  async getAdminUsers(path) {
+    const response = await ourloveFetch(`/api/v1.0/relationships/get_admin_users/${path}`)
+    return response.json()
+  },
+
   async getImages(path) {
     const response = await ourloveFetch(`/api/v1.0/relationships/get_images/${path}`)
     return response.json()

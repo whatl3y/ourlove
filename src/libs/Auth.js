@@ -19,7 +19,7 @@ export default class Auth {
     if (integration)
       return integration.user_id
 
-    const existingUserId = (this._session && this._session.user) ? this._session.user.id : null
+    const existingUserId = this.getLoggedInUsersId()
     const newUserId = await this.createUserAndIntegration(existingUserId, integrationData)
     return newUserId
   }
@@ -41,7 +41,12 @@ export default class Auth {
 
   async createUserAndIntegration(userId, intInfo) {
     if (!userId) {
-      const { rows } = await this.postgres.query(`insert into users (name) select $1 returning id`, [intInfo.first_name || intInfo.unique_id || 'INIT'])
+      const newUsersName = (intInfo.first_name && intInfo.last_name) ? `${intInfo.first_name} ${intInfo.last_name}` : (intInfo.first_name || intInfo.unique_id || 'INIT')
+      const { rows } = await this.postgres.query(`
+        insert into users (name, primary_email)
+        select $1, $2
+        returning id
+      `, [newUsersName, intInfo.email])
       if (rows.length)
         userId = rows[0].id
       else

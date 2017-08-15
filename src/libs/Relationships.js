@@ -33,6 +33,15 @@ export default class Relationships {
     return rows
   }
 
+  async getRelationshipsByUserId(userId) {
+    const { rows } = await this.postgres.query(`
+      select r.* from users_relationships_map as m
+      inner join relationships as r on r.id = m.relationships_id
+      where m.user_id = $1
+    `, [userId])
+    return rows
+  }
+
   async get(id=this.id) {
     const { rows } = await this.postgres.query(`
       select * from relationships
@@ -51,6 +60,16 @@ export default class Relationships {
     if (rows.length)
       return rows[0]
     return null
+  }
+
+  async getAdminUsersByPath(path=this.path) {
+    const { rows } = await this.postgres.query(`
+      select u.* from users_relationships_map as m
+      inner join users as u on u.id = m.user_id
+      inner join relationships as r on r.id = m.relationships_id
+      where r.path = $1
+    `, [path])
+    return rows
   }
 
   async getImages(path=this.path) {

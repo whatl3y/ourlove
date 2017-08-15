@@ -8,7 +8,6 @@ const FacebookStrategy = passport_facebook.Strategy
 
 export default function FacebookPassportStrategy(postgresClient) {
   return {
-    BUILTIN:    true,
     strategy:   FacebookStrategy,
     condition:  !!config.facebook.appId,
     options: {

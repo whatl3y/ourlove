@@ -1,5 +1,5 @@
 <template lang="pug">
-  div.container.relationship-container
+  div.container.relationship-container.margin-top-sm
     div.text-center.create-relationship-container(v-if="relationshipStatus('loading')")
       i.fa.fa-4x.fa-spinner.fa-spin
 
@@ -27,7 +27,7 @@
           div.text-center.padding-md
             b-button.btn-ourlove-dark(size="lg",@click="createRelationship()") Create Relationship Page
 
-    relationship(:id="relationship_id",:relationship="relationship",v-if="relationshipStatus('valid')")
+    relationship(:id="relationship_id",:relationship="relationship",:isAdmin="isRelationshipAdmin",:initEdit="edit && isRelationshipAdmin",v-if="relationshipStatus('valid')")
 </template>
 
 <script>
@@ -41,15 +41,16 @@
 
   const RelationshipWrapper = {
     name: 'relationship_wrapper',
-    props: ['relationship_id'],
+    props: ['edit', 'relationship_id'],
     data() {
       return {
-        loading: true,
-        isLoggedIn: false,
-        newRelationship: {},
-        startDate: null,
-        marriedDate: null,
-        relationship: null
+        loading:              true,
+        isLoggedIn:           false,
+        isRelationshipAdmin:  false,
+        newRelationship:      {},
+        startDate:            null,
+        marriedDate:          null,
+        relationship:         null
       }
     },
 
@@ -112,10 +113,12 @@
 
       const responses = await Promise.all([
         AuthFactory.isLoggedIn(),
+        AuthFactory.isRelationshipAdmin(this.relationship_id),
         AuthFactory.setReturnTo(this.relationship_id),
         this.getRelationship()
       ])
-      this.isLoggedIn = responses[0]
+      this.isLoggedIn           = responses[0]
+      this.isRelationshipAdmin  = responses[1]
     },
 
     components: {
