@@ -26,7 +26,9 @@ const postgres = new PostgresClient(postgres_url, {max: 1})
       createTags(postgres),
       createTagsIndexes(postgres),
       createRelationshipTagsMap(postgres),
-      createRelationshipTagsMapIndexes(postgres)
+      createRelationshipTagsMapIndexes(postgres),
+
+      addProfilePictureToUsers(postgres)
     ])
 
     log.info("Successfully ran DB migrations!")
@@ -219,4 +221,8 @@ async function createRelationshipTagsMap(postgres) {
 async function createRelationshipTagsMapIndexes(postgres) {
   await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationship_tags_map_tags_id on relationship_tags_map (tags_id)`)
   await postgres.query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS relationship_tags_map_relationships_id on relationship_tags_map (relationships_id)`)
+}
+
+async function addProfilePictureToUsers(postgres) {
+  await postgres.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_picture varchar(255)')
 }

@@ -9,7 +9,8 @@
         b-collapse#navbarNavDropdown(is-nav)
           b-nav.is-nav-bar.ml-auto
             div.d-flex.align-items-center.text-small(v-if="displayName",style="padding-right:4px;margin-right:4px;border-right:1px solid")
-              strong Welcome, {{ displayName }}
+              strong Welcome, &nbsp;
+              a(href="/profile") {{ displayName }}
             div.d-flex.align-items-center.text-small(v-if="!(hasIntegration('facebook') || hasIntegration('instagram') || hasIntegration('pinterest'))")
               div login >
             b-nav-item(to="/oauth/facebook",v-if="!hasIntegration('facebook')")

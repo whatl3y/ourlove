@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '@/components/Home'
+import UserProfile from '@/components/UserProfile'
 import RelationshipWrapper from '@/components/RelationshipWrapper'
 import ReloadPage from '@/components/ReloadPage'
 
@@ -18,6 +19,7 @@ export default new VueRouter({
     { path: '/logout', component: ReloadPage },
     { path: '/oauth/*', component: ReloadPage },
     { path: '/redirect', component: ReloadPage },
+    { path: '/profile', component: UserProfile },
     {
       path: '/:relationship_id*/edit',
       component: RelationshipWrapper,
