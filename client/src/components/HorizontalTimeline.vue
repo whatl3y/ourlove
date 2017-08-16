@@ -27,7 +27,6 @@
   // https://bootsnipp.com/snippets/a3BjR
 
   import moment from 'moment'
-  import CircularImage from './CircularImage'
   import TimeHelpers from '../factories/TimeHelpers'
 
   export default {
@@ -55,9 +54,6 @@
           return {[ev.icon]: true}
         return {'fa-check': true}
       }
-    },
-    components: {
-      'circular-image': CircularImage
     }
   }
 </script>

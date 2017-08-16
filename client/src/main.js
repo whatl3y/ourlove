@@ -10,6 +10,7 @@ import router from './router'
 // external libraries and components
 import 'whatwg-fetch'
 import Toastr from 'vue-toastr'
+import CircularImage from './components/CircularImage'
 import Dropzone from 'vue2-dropzone'
 import Datepicker from './components/Datepicker'
 import FormRequiredInput from './components/FormRequiredInput'
@@ -31,6 +32,7 @@ if ('addEventListener' in document)
 
 Vue.use(BootstrapVue)
 Vue.component('vue-toastr', Toastr)
+Vue.component('CircularImage', CircularImage)
 Vue.component('datepicker', Datepicker)
 Vue.component('Dropzone', Dropzone)
 Vue.component('FormRequiredInput', FormRequiredInput)

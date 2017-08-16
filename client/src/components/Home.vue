@@ -40,20 +40,11 @@
                 b-button.btn-ourlove-dark(href="javascript:void(0)",@click="goToPotentiallyNewPage()") Go to New Page
           div.col-sm-12.col-md-6(v-if="recentRelationships.length > 0")
             h3 Recently Created Relationships
-            ul.list-unstyled
-              li(v-for="(rela,index) in recentRelationships")
-                a(:href="rela.path")
-                  div.d-flex.align-items-center
-                    span {{ index+1 }}.
-                    circular-image(style="display:inline-block",:img="rela",:size="40")
-                    div
-                      div  {{ rela.person1_name }} &amp; {{ rela.person2_name }}
-                      div.gray(style="font-size:0.7em") Relationship started: {{ getFormattedDate(rela.relationship_started) }}
-                    div.ml-auto.gray(style="font-size:0.7em") Created: {{ getTimeFromNow(rela.created_at) }}
+            relationship-list(:relationships="recentRelationships")
 </template>
 
 <script>
-  import CircularImage from './CircularImage'
+  import RelationshipList from './RelationshipList'
   import RelationshipsFactory from '../factories/Relationships'
   import TimeHelpers from '../factories/TimeHelpers'
 
@@ -93,8 +84,9 @@
     async mounted() {
       this.recentRelationships = (await RelationshipsFactory.getList()).relationships
     },
+
     components: {
-      'circular-image': CircularImage
+      'relationship-list': RelationshipList
     }
   }
 </script>

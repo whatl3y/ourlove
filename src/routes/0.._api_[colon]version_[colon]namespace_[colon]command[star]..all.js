@@ -24,11 +24,20 @@ export default async function Api(req, res) {
     const auth          = new Auth({postgres: postgres, session: req.session})
     const relationship  = new Relationships({postgres: postgres, path: info})
 
+    const userId = auth.getLoggedInUsersId()
+
     switch(namespace) {
       case 'auth':
         switch(command) {
           case 'logged_in':
             return res.json(auth.isLoggedIn())
+
+          case 'logged_in_user':
+            if (!userId)
+              return res.json(null)
+
+            const user = await auth.getUser(userId)
+            return res.json(user)
 
           case 'relationship_admin':
             const isAdmin = await auth.isUserAdminOfRelationship(info)
@@ -40,7 +49,6 @@ export default async function Api(req, res) {
             return res.sendStatus(200)
 
           case 'get_relationships':
-            const userId = auth.getLoggedInUsersId()
             if (!userId)
               return res.json([])
 
@@ -65,6 +73,30 @@ export default async function Api(req, res) {
               return null
             })()
             return res.json({logged_in: true, display_name: displayName, integrations: types})
+
+          case 'update_user':
+            if (!userId)
+              return res.status(401).send('You need to be logged in to update your profile picture.')
+
+            const newData = body.user_info
+            await auth.updateUser(userId, newData)
+            return res.json(true)
+
+          case 'profile_picture_upload':
+            if (!userId)
+              return res.status(401).send('You need to be logged in to update your profile picture.')
+            if (!body.file)
+              return res.status(400).send('No file provided to upload.')
+
+            const fileInfo = body.file
+            const fileName = fileInfo.name
+            const filePath = fileInfo.path
+            const fileType = fileInfo.type
+
+            const [mainS3FileName, smallerS3FileName, tinyS3FileName, orientation, origImageExif] = await ImageHelpers.uploadImagesFromFileOrIntegration('upload', filePath, fileName)
+            await auth.updateUser(userId, {profile_picture: smallerS3FileName.filename})
+
+            return res.json({profile_picture: smallerS3FileName.filename})
         }
         break
 
@@ -214,8 +246,6 @@ export default async function Api(req, res) {
             if (!record)
               return res.status(400).json({error: 'You need to log in and create this relationship before uploading pictures.'})
 
-            const imageHelpers = new ImageHelpers()
-
             const convertImageUrl = obj => {
               const type = obj.type
               switch (type) {
@@ -227,24 +257,9 @@ export default async function Api(req, res) {
             }
 
             const uploadFiles = async (imageType, imageTypeUid, imageUrlorFilePath, imageTakenTime=null, fileName=null) => {
-              const imageFileTypes    = ['.gif', '.jpg', '.jpeg', '.png']
-              // const fileNameFromUrl   = imageUrlorFilePath.split('/').filter(piece => imageFileTypes.filter(ext => piece.indexOf(ext) > -1).length > 0)[0] + '.jpg'
-              fileName                = fileName  || `uploaded_picture_${imageType}.jpg`
-              const {lwipImg, exif}   = (imageType === 'upload')
-                                        ? await imageHelpers.rotateImagePerExifOrientation('fs', imageUrlorFilePath) //filePath)
-                                        : await imageHelpers.rotateImagePerExifOrientation('url', imageUrlorFilePath) //imageUrl)
+              const [mainS3FileName, smallerS3FileName, tinyS3FileName, orientation, origImageExif] = await ImageHelpers.uploadImagesFromFileOrIntegration(imageType, imageUrlorFilePath, fileName)
 
-              const newImageBuffer    = await imageHelpers.toBuffer(lwipImg, 'jpg')    //ImageHelpers.getImageTypeFromFile(fileName))
-              const [w, h]            = await imageHelpers.dimensions(lwipImg)
-              const orientation       = (w / h > 1) ? 'landscape' : 'portrait'
-              const dateImgModified   = imageTakenTime || ((exif && exif.image && exif.image.ModifyDate) ? moment.utc(exif.image.ModifyDate, 'YYYY:MM:DD HH:mm:ss').toDate() : null)
-
-              const [mainS3FileName, smallerS3FileName, tinyS3FileName] = await Promise.all([
-                s3.writeFile({filename: fileName, data: newImageBuffer}),
-                imageHelpers.uploadSmallImageFromSource({jpg: true, filename: fileName, data: newImageBuffer, size: 400}),
-                imageHelpers.uploadSmallImageFromSource({jpg: true, filename: fileName, data: newImageBuffer, size: 150}),
-              ])
-
+              const dateImgModified = imageTakenTime || ((origImageExif && origImageExif.image && origImageExif.image.ModifyDate) ? moment.utc(origImageExif.image.ModifyDate, 'YYYY:MM:DD HH:mm:ss').toDate() : null)
               const { rows } = await postgres.query(`
                 insert into relationships_images (relationships_id, image_type, image_type_uid, main_image_name, small_image_name, tiny_image_name, orientation, image_taken)
                 values ($1, $2, $3, $4, $5, $6, $7, $8)

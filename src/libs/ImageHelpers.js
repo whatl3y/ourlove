@@ -784,6 +784,26 @@ export default class ImageHelpers {
     })
   }
 
+  static async uploadImagesFromFileOrIntegration(imageType, imageUrlorFilePath, fileName=null) {
+    const imageHelpers = new ImageHelpers()
+
+    fileName                = fileName  || `uploaded_picture_${imageType}.jpg`
+    const {lwipImg, exif}   = (imageType === 'upload')
+          ? await imageHelpers.rotateImagePerExifOrientation('fs', imageUrlorFilePath)
+          : await imageHelpers.rotateImagePerExifOrientation('url', imageUrlorFilePath)
+
+    const newImageBuffer    = await imageHelpers.toBuffer(lwipImg, 'jpg')
+    const [w, h]            = await imageHelpers.dimensions(lwipImg)
+    const orientation       = (w / h > 1) ? 'landscape' : 'portrait'
+
+    const [mainS3FileName, smallerS3FileName, tinyS3FileName] = await Promise.all([
+      s3.writeFile({filename: fileName, data: newImageBuffer}),
+      imageHelpers.uploadSmallImageFromSource({jpg: true, filename: fileName, data: newImageBuffer, size: 400}),
+      imageHelpers.uploadSmallImageFromSource({jpg: true, filename: fileName, data: newImageBuffer, size: 150}),
+    ])
+    return [mainS3FileName, smallerS3FileName, tinyS3FileName, orientation, exif]
+  }
+
   static getFileName(fileName, extraText=Date.now()) {
     const lastPeriod = fileName.lastIndexOf(".")
     return `${fileName.substring(0, lastPeriod)}_${extraText}${fileName.substring(lastPeriod)}`

@@ -106,7 +106,6 @@
 
 <script>
   import moment from 'moment'
-  import CircularImage from './CircularImage'
   import CountUpHorizontal from './CountUpHorizontal'
   import CountUpMinimal from './CountUpMinimal'
   import MilestoneEditor from './MilestoneEditor'
@@ -312,7 +311,6 @@
     },
 
     components: {
-      'circular-image': CircularImage,
       'count-up-min': CountUpMinimal,
       'count-up-hor': CountUpHorizontal,
       'milestone-editor': MilestoneEditor,

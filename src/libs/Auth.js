@@ -71,6 +71,28 @@ export default class Auth {
     return userId
   }
 
+  async updateUser(userId, userData) {
+    const updateableColumns = ['name', 'primary_email', 'profile_picture']
+    let queryAry = ['update users set']
+    let paramsAry = []
+    let paramIndTracker = 1
+
+    Object.keys(userData).forEach(key => {
+      if (updateableColumns.indexOf(key) > -1) {
+        queryAry.push(`${key} = $${paramIndTracker},`)
+        paramsAry.push(userData[key])
+        paramIndTracker++
+      }
+    })
+
+    queryAry.push('updated_at = now()')
+    queryAry.push(`where id = $${paramIndTracker}`)
+    paramsAry.push(userId)
+
+    const queryString = queryAry.concat(['returning id']).join(' ')
+    return await this.postgres.query(queryString, paramsAry)
+  }
+
   async isUserAdminOfRelationship(path, userId=this.getLoggedInUsersId()) {
     const { rows } = await this.postgres.query(`
       select r.* from users_relationships_map as m

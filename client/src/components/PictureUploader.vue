@@ -66,7 +66,6 @@
 
 <script>
   import moment from 'moment'
-  import CircularImage from './CircularImage'
   import AuthFactory from '../factories/Auth'
   import IntegrationsFactory from '../factories/Integrations'
 
@@ -176,10 +175,6 @@
     async created() {
       const info = await AuthFactory.getIntegrations()
       this.integrations = info.integrations
-    },
-
-    components: {
-      'circular-image': CircularImage
     }
   }
 </script>
