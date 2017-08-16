@@ -35,8 +35,9 @@ export default class Relationships {
 
   async getRelationshipsByUserId(userId) {
     const { rows } = await this.postgres.query(`
-      select r.* from users_relationships_map as m
+      select i.main_image_name, i.small_image_name, r.* from users_relationships_map as m
       inner join relationships as r on r.id = m.relationships_id
+      left outer join relationships_images as i on i.relationships_id = r.id and i.relationship_primary_image is true
       where m.user_id = $1
     `, [userId])
     return rows

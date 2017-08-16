@@ -30,6 +30,17 @@ a {
   }
 }
 
+.footer {
+  position: absolute;
+  bottom: 0;
+  height: 60px;
+  width: 100%;
+
+  a {
+    color: #ffffff !important;
+  }
+}
+
 .clicker {
   cursor: pointer;
 }
@@ -49,6 +60,7 @@ a {
 }
 
 #app {
+  position: relative;
   color: $main_color;
 }
 
