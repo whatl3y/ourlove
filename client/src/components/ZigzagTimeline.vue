@@ -5,8 +5,8 @@
         li(v-for="(event, index) in events",:class="{'timeline-inverted': isInverted(index)}")
           div.timeline-image
             div.force-circle.w-160
-              img(:class="{ portrait: getLandscapeOrPortrait('portrait', event.orientation), landscape: getLandscapeOrPortrait('landscape', event.orientation) }",:src="'/file/s3/' + event.imageSrc")
-            - //img.img-fluid.rounded-circle(:src="'/file/s3/' + event.imageSrc")
+              img(:class="{ portrait: getLandscapeOrPortrait('portrait', event.orientation), landscape: getLandscapeOrPortrait('landscape', event.orientation) }",:src="getImageSrc({main_image_name: event.imageSrc})")
+            - //img.img-fluid.rounded-circle(:src="getImageSrc({main_image_name: event.imageSrc})")
           div.timeline-panel
             div.timeline-heading
               h3(v-if="event.title") {{ event.title }}
@@ -22,12 +22,14 @@
   // bootsnipp.com/snippets/featured/zigzag-timeline-layout
 
   import moment from 'moment'
+  import ImageHelpers from '../factories/ImageHelpers'
   import TimeHelpers from '../factories/TimeHelpers'
 
   export default {
     name: 'zigzag-timeline',
     props: ['events', 'format'],
     methods: {
+      getImageSrc: ImageHelpers.getImageSrc,
       getFormattedDate: TimeHelpers.getFormattedDate,
       getTimeFromNow: TimeHelpers.getTimeFromNow,
 

@@ -8,7 +8,7 @@
         div.row
           div.col-md-6.col-lg-3.d-flex.justify-content-center(v-if="!isInEditMode(milestone.id)")
             div.img-thumbnail.border-only.dark-border.force-circle.w-200
-              img(:class="{ portrait: getLandscapeOrPortrait('portrait', milestone.orientation), landscape: getLandscapeOrPortrait('landscape', milestone.orientation) }",:src="'/file/s3/' + milestone.main_image_name")
+              img(:class="{ portrait: getLandscapeOrPortrait('portrait', milestone.orientation), landscape: getLandscapeOrPortrait('landscape', milestone.orientation) }",:src="getImageSrc(milestone)")
           div.col
             div.text-right(style="font-size:10px")
               a(href="javascript:void(0)",@click="toggleEditMode(milestone.id)",v-if="!milestone.NEW")
@@ -20,14 +20,14 @@
               h2 {{ (milestone.NEW) ? 'Create' : 'Edit' }} Event/Milestone
               div.row
                 div.col-sm-12.col-md-3
-                  img.img-fluid.img-thumbnail(:src="'/file/s3/' + ((selectedImageId) ? getImageFilenameFromId(selectedImageId) : milestone.main_image_name)",v-if="selectedImageId || milestone.main_image_name")
+                  img.img-fluid.img-thumbnail(:src="getImageSrc({main_image_name: (selectedImageId) ? getImageFilenameFromId(selectedImageId) : milestone.main_image_name})",v-if="selectedImageId || milestone.main_image_name")
                   div.text-center
                     b-button.margin-top-md(v-b-modal="'imageModal' + index") Change Image
                     b-modal(:id="'imageModal' + index",title="Select Image",@ok="imageSelected($event, milestone)",@shown="clearImage(milestone)")
                       div.d-flex.flex-wrap.justify-content-center.align-items-center
                         div.possible-images.padding-sm(style="border-radius:4px",v-for="image in images",:class="{ selected: selectedImageId == image.id }")
                           a(href="javascript:void(0)",@click="clickAndSelectImage(image.id)")
-                            img.img-fluid.img-thumbnail(style="max-width:80px",:src="'/file/s3/' + image.small_image_name")
+                            img.img-fluid.img-thumbnail(style="max-width:80px",:src="getImageSrc(image, 'small')")
                             div.text-center(style="color:#ffffff",v-show="selectedImageId == image.id")
                               i.fa.fa-check-circle-o
                 div.col
@@ -63,6 +63,7 @@
 
 <script>
   import RelationshipsFactory from '../factories/Relationships'
+  import ImageHelpers from '../factories/ImageHelpers'
   import TimeHelpers from '../factories/TimeHelpers'
 
   export default {
@@ -75,6 +76,7 @@
       }
     },
     methods: {
+      getImageSrc: ImageHelpers.getImageSrc,
       getFormattedDate: TimeHelpers.getFormattedDate,
 
       getImageFilenameFromId(imageId) {
@@ -145,7 +147,7 @@
           } else {
             this.toggleEditMode(res.id)
           }
-          
+
           this.$emit('successUpdate', milestoneWithId)
 
         } catch(err) {

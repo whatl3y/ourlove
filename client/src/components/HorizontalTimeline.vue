@@ -11,7 +11,7 @@
             div.timeline-panel
               div.timeline-heading
                 h4.timeline-title.d-flex.align-items-center(v-if="event.title || event.imageSrc")
-                  circular-image(style="display:inline-block",v-if="event.imageSrc",:img="{main_image_name: event.imageSrc}",:size="60")
+                  circular-image(style="display:inline-block",:img="{main_image_name: event.imageSrc}",:size="60")
                   span {{ event.title }}
                 p(v-if="event.timestamp")
                   small.text-muted

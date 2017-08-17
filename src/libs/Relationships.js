@@ -96,10 +96,10 @@ export default class Relationships {
         r.person2_birthday,
         m.*
       from relationship_milestones as m
-      inner join relationships_images as i on i.id = m.image_id
       inner join relationships as r on r.id = m.relationships_id
+      left outer join relationships_images as i on i.id = m.image_id
       where r.path = $1
-      order by m.milestone_time, m.created_at
+      order by m.milestone_time desc, m.created_at desc
     `, [path])
     return rows
   }
